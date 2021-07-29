@@ -1,6 +1,7 @@
-package io.odpf.firehose.sink.mongodb.response;
+package io.odpf.firehose.sink.mongodb.client;
 
 import com.mongodb.MongoBulkWriteException;
+import com.mongodb.MongoClient;
 import com.mongodb.bulk.BulkWriteError;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
@@ -9,6 +10,8 @@ import io.odpf.firehose.metrics.Instrumentation;
 import lombok.AllArgsConstructor;
 import org.bson.Document;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,11 +22,12 @@ import static io.odpf.firehose.metrics.Metrics.SINK_MESSAGES_DROP_TOTAL;
  * The Mongo response handler.
  */
 @AllArgsConstructor
-public class MongoResponseHandler {
+public class MongoSinkClient implements Closeable {
 
     private final MongoCollection<Document> mongoCollection;
     private final Instrumentation instrumentation;
     private final List<String> mongoRetryStatusCodeBlacklist;
+    private final MongoClient mongoClient;
 
     /**
      * Processes the bulk request list of WriteModel.
@@ -54,9 +58,6 @@ public class MongoResponseHandler {
 
     private void logResults(BulkWriteResult writeResult) {
 
-        instrumentation.logInfo("Successfully inserted {} documents", writeResult.getInsertedCount());
-        instrumentation.logInfo("Successfully updated {} documents", writeResult.getModifiedCount());
-
         if (writeResult.wasAcknowledged()) {
             instrumentation.logInfo("Bulk Write operation was successfully acknowledged");
         } else {
@@ -80,5 +81,10 @@ public class MongoResponseHandler {
                 });
 
         instrumentation.logWarn("Bulk request failed count: {}", writeErrors.size());
+    }
+
+    @Override
+    public void close() throws IOException {
+        mongoClient.close();
     }
 }

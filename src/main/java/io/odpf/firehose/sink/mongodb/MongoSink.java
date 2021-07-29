@@ -1,13 +1,12 @@
 package io.odpf.firehose.sink.mongodb;
 
-import com.mongodb.MongoClient;
 import com.mongodb.bulk.BulkWriteError;
 import com.mongodb.client.model.WriteModel;
 import io.odpf.firehose.consumer.Message;
 import io.odpf.firehose.metrics.Instrumentation;
 import io.odpf.firehose.sink.AbstractSink;
+import io.odpf.firehose.sink.mongodb.client.MongoSinkClient;
 import io.odpf.firehose.sink.mongodb.request.MongoRequestHandler;
-import io.odpf.firehose.sink.mongodb.response.MongoResponseHandler;
 import org.bson.Document;
 
 import java.io.IOException;
@@ -22,8 +21,7 @@ public class MongoSink extends AbstractSink {
 
     private final MongoRequestHandler mongoRequestHandler;
     private final List<WriteModel<Document>> request = new ArrayList<>();
-    private final MongoResponseHandler mongoResponseHandler;
-    private final MongoClient mongoClient;
+    private final MongoSinkClient mongoSinkClient;
     private List<Message> messages;
 
     /**
@@ -31,15 +29,13 @@ public class MongoSink extends AbstractSink {
      *
      * @param instrumentation     the instrumentation
      * @param sinkType            the sink type
-     * @param mongoClient         the mongo client
      * @param mongoRequestHandler the mongo request handler
      */
-    public MongoSink(Instrumentation instrumentation, String sinkType, MongoClient mongoClient, MongoRequestHandler mongoRequestHandler,
-                     MongoResponseHandler mongoResponseHandler) {
+    public MongoSink(Instrumentation instrumentation, String sinkType, MongoRequestHandler mongoRequestHandler,
+                     MongoSinkClient mongoSinkClient) {
         super(instrumentation, sinkType);
         this.mongoRequestHandler = mongoRequestHandler;
-        this.mongoClient = mongoClient;
-        this.mongoResponseHandler = mongoResponseHandler;
+        this.mongoSinkClient = mongoSinkClient;
     }
 
     @Override
@@ -51,7 +47,7 @@ public class MongoSink extends AbstractSink {
 
     @Override
     protected List<Message> execute() throws Exception {
-        List<BulkWriteError> writeErrors = mongoResponseHandler.processRequest(request);
+        List<BulkWriteError> writeErrors = mongoSinkClient.processRequest(request);
         return writeErrors.stream()
                 .map(writeError -> messages.get(writeError.getIndex()))
                 .collect(Collectors.toList());
@@ -60,6 +56,6 @@ public class MongoSink extends AbstractSink {
     @Override
     public void close() throws IOException {
         getInstrumentation().logInfo("MongoDB connection closing");
-        this.mongoClient.close();
+        this.mongoSinkClient.close();
     }
 }

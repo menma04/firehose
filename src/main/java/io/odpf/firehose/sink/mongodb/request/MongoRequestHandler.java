@@ -64,7 +64,7 @@ public abstract class MongoRequestHandler {
     /**
      * Gets field from json.
      *
-     * @param key        the key
+     * @param key the key
      * @return the field from json
      */
     protected String getFieldFromJSON(JSONObject jsonObject, String key) {
