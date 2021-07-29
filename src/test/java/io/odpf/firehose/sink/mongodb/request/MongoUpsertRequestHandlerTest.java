@@ -83,7 +83,7 @@ public class MongoUpsertRequestHandlerTest {
                 "customer_id");
 
         ReplaceOneModel<Document> request = mongoUpsertRequestHandler.getRequest(messageWithJSON);
-        Document inputMap = new Document("_id","544131618") ;
+        Document inputMap = new Document("_id", "544131618");
         inputMap.putAll(new BasicDBObject(Document.parse(jsonString)).toMap());
         Document outputMap = request.getReplacement();
         assertEquals(inputMap.keySet().stream().sorted().collect(Collectors.toList()), outputMap.keySet().stream().sorted().collect(Collectors.toList()));

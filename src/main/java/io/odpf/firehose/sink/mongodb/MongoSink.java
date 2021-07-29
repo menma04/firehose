@@ -12,7 +12,6 @@ import org.bson.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,10 +29,10 @@ public class MongoSink extends AbstractSink {
     /**
      * Instantiates a new Mongo sink.
      *
-     * @param instrumentation               the instrumentation
-     * @param sinkType                      the sink type
-     * @param mongoClient                   the mongo client
-     * @param mongoRequestHandler           the mongo request handler
+     * @param instrumentation     the instrumentation
+     * @param sinkType            the sink type
+     * @param mongoClient         the mongo client
+     * @param mongoRequestHandler the mongo request handler
      */
     public MongoSink(Instrumentation instrumentation, String sinkType, MongoClient mongoClient, MongoRequestHandler mongoRequestHandler,
                      MongoResponseHandler mongoResponseHandler) {
@@ -53,10 +52,6 @@ public class MongoSink extends AbstractSink {
     @Override
     protected List<Message> execute() throws Exception {
         List<BulkWriteError> writeErrors = mongoResponseHandler.processRequest(request);
-
-        if (writeErrors.isEmpty()) {
-            return Collections.emptyList();
-        }
         return writeErrors.stream()
                 .map(writeError -> messages.get(writeError.getIndex()))
                 .collect(Collectors.toList());

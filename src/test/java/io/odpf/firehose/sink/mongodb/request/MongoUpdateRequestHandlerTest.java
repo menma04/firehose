@@ -83,7 +83,7 @@ public class MongoUpdateRequestHandlerTest {
                 "customer_id");
 
         ReplaceOneModel<Document> request = mongoUpdateRequestHandler.getRequest(messageWithJSON);
-        Document inputMap = new Document("_id","544131618") ;
+        Document inputMap = new Document("_id", "544131618");
         inputMap.putAll(new BasicDBObject(Document.parse(jsonString)).toMap());
         Document outputMap = request.getReplacement();
         assertEquals(inputMap.keySet().stream().sorted().collect(Collectors.toList()), outputMap.keySet().stream().sorted().collect(Collectors.toList()));
@@ -127,7 +127,7 @@ public class MongoUpdateRequestHandlerTest {
     public void shouldThrowExceptionForInvalidKey() {
         MongoUpdateRequestHandler mongoUpdateRequestHandler = new MongoUpdateRequestHandler(MongoSinkMessageType.PROTOBUF, jsonSerializer, MongoSinkRequestType.UPDATE_ONLY,
                 "s2_id_level");
-        JSONObject jsonObject=mongoUpdateRequestHandler.getJSONObject(jsonSerializer.serialize(messageWithProto));
+        JSONObject jsonObject = mongoUpdateRequestHandler.getJSONObject(jsonSerializer.serialize(messageWithProto));
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Key: wrongKey not found in ESB Message");
