@@ -5,8 +5,11 @@ import com.mongodb.MongoClient;
 import com.mongodb.bulk.BulkWriteError;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.WriteModel;
+import io.odpf.firehose.config.MongoSinkConfig;
 import io.odpf.firehose.metrics.Instrumentation;
+import io.odpf.firehose.sink.mongodb.util.MongoSinkClientUtil;
 import lombok.AllArgsConstructor;
 import org.bson.Document;
 
@@ -28,6 +31,17 @@ public class MongoSinkClient implements Closeable {
     private final Instrumentation instrumentation;
     private final List<String> mongoRetryStatusCodeBlacklist;
     private final MongoClient mongoClient;
+
+    public MongoSinkClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
+
+        this.instrumentation = instrumentation;
+        mongoClient = MongoSinkClientUtil.buildMongoClient(mongoSinkConfig, instrumentation);
+
+        MongoDatabase database = mongoClient.getDatabase(mongoSinkConfig.getSinkMongoDBName());
+        mongoCollection = database.getCollection(mongoSinkConfig.getSinkMongoCollectionName());
+        mongoRetryStatusCodeBlacklist = MongoSinkClientUtil.getStatusCodesAsList(mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist());
+    }
+
 
     /**
      * Processes the bulk request list of WriteModel.

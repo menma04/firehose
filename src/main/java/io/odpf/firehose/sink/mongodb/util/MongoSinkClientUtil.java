@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * The type Mongo sink factory util.
  */
 @UtilityClass
-public class MongoSinkClientFactoryUtil {
+public class MongoSinkClientUtil {
 
     /**
      * Gets server addresses.

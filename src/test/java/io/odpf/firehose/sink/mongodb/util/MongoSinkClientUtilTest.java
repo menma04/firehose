@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class MongoSinkClientFactoryUtilTest {
+public class MongoSinkClientUtilTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -31,7 +31,7 @@ public class MongoSinkClientFactoryUtilTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("SINK_MONGO_CONNECTION_URLS is empty or null");
 
-        MongoSinkClientFactoryUtil.getServerAddresses("", instrumentation);
+        MongoSinkClientUtil.getServerAddresses("", instrumentation);
 
     }
 
@@ -40,14 +40,14 @@ public class MongoSinkClientFactoryUtilTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("SINK_MONGO_CONNECTION_URLS is empty or null");
 
-        MongoSinkClientFactoryUtil.getServerAddresses(null, instrumentation);
+        MongoSinkClientUtil.getServerAddresses(null, instrumentation);
     }
 
     @Test
     public void shouldThrowIllegalArgumentExceptionForEmptyHost() {
         String mongoConnectionURLs = ":1000";
         thrown.expect(IllegalArgumentException.class);
-        MongoSinkClientFactoryUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
+        MongoSinkClientUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
     }
 
     @Test
@@ -55,13 +55,13 @@ public class MongoSinkClientFactoryUtilTest {
         String mongoConnectionURLs = "localhost:";
         thrown.expect(IllegalArgumentException.class);
 
-        MongoSinkClientFactoryUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
+        MongoSinkClientUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
     }
 
     @Test
     public void shouldGetServerAddressesForValidMongoConnectionURLs() {
         String mongoConnectionURLs = "localhost_1:1000,localhost_2:1000";
-        List<ServerAddress> serverAddresses = MongoSinkClientFactoryUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
+        List<ServerAddress> serverAddresses = MongoSinkClientUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
 
         assertEquals("localhost_1", serverAddresses.get(0).getHost());
         assertEquals(1000, serverAddresses.get(0).getPort());
@@ -72,7 +72,7 @@ public class MongoSinkClientFactoryUtilTest {
     @Test
     public void shouldGetServerAddressesForValidMongoConnectionURLsWithSpacesInBetween() {
         String mongoConnectionURLs = " localhost_1: 1000,  localhost_2:1000";
-        List<ServerAddress> serverAddresses = MongoSinkClientFactoryUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
+        List<ServerAddress> serverAddresses = MongoSinkClientUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
 
         assertEquals("localhost_1", serverAddresses.get(0).getHost());
         assertEquals(1000, serverAddresses.get(0).getPort());
@@ -83,7 +83,7 @@ public class MongoSinkClientFactoryUtilTest {
     @Test
     public void shouldGetServerAddressForIPInMongoConnectionURLs() {
         String mongoConnectionURLs = "172.28.32.156:1000";
-        List<ServerAddress> serverAddresses = MongoSinkClientFactoryUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
+        List<ServerAddress> serverAddresses = MongoSinkClientUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
 
         assertEquals("172.28.32.156", serverAddresses.get(0).getHost());
         assertEquals(1000, serverAddresses.get(0).getPort());
@@ -95,13 +95,13 @@ public class MongoSinkClientFactoryUtilTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("SINK_MONGO_CONNECTION_URLS should contain host and port both");
 
-        MongoSinkClientFactoryUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
+        MongoSinkClientUtil.getServerAddresses(mongoConnectionURLs, instrumentation);
     }
 
     @Test
     public void shouldReturnBlackListRetryStatusCodesAsList() {
         String inputRetryStatusCodeBlacklist = "404, 502";
-        List<String> statusCodesAsList = MongoSinkClientFactoryUtil.getStatusCodesAsList(inputRetryStatusCodeBlacklist);
+        List<String> statusCodesAsList = MongoSinkClientUtil.getStatusCodesAsList(inputRetryStatusCodeBlacklist);
         assertEquals("404", statusCodesAsList.get(0));
         assertEquals("502", statusCodesAsList.get(1));
     }
@@ -109,7 +109,7 @@ public class MongoSinkClientFactoryUtilTest {
     @Test
     public void shouldReturnEmptyBlackListRetryStatusCodesAsEmptyList() {
         String inputRetryStatusCodeBlacklist = "";
-        List<String> statusCodesAsList = MongoSinkClientFactoryUtil.getStatusCodesAsList(inputRetryStatusCodeBlacklist);
+        List<String> statusCodesAsList = MongoSinkClientUtil.getStatusCodesAsList(inputRetryStatusCodeBlacklist);
         assertEquals(0, statusCodesAsList.size());
     }
 }

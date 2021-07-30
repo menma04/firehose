@@ -10,7 +10,6 @@ import io.odpf.firehose.serializer.MessageToJson;
 import io.odpf.firehose.sink.Sink;
 import io.odpf.firehose.sink.SinkFactory;
 import io.odpf.firehose.sink.mongodb.client.MongoSinkClient;
-import io.odpf.firehose.sink.mongodb.client.MongoSinkClientFactory;
 import io.odpf.firehose.sink.mongodb.request.MongoRequestHandler;
 import io.odpf.firehose.sink.mongodb.request.MongoRequestHandlerFactory;
 import io.odpf.firehose.sink.mongodb.util.MongoSinkFactoryUtil;
@@ -43,9 +42,8 @@ public class MongoSinkFactory implements SinkFactory {
 
         ).getRequestHandler();
 
-        MongoSinkClientFactory mongoSinkClientFactory = new MongoSinkClientFactory(mongoSinkConfig, instrumentation);
+        MongoSinkClient mongoSinkClient = new MongoSinkClient(mongoSinkConfig, instrumentation);
 
-        MongoSinkClient mongoSinkClient = mongoSinkClientFactory.create();
         instrumentation.logInfo("MONGO connection established");
         return new MongoSink(new Instrumentation(statsDReporter, MongoSink.class), SinkType.MONGODB.name().toLowerCase(), mongoRequestHandler,
                 mongoSinkClient);
