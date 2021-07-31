@@ -12,14 +12,13 @@ public class MongoSinkFactoryUtil {
 
     /**
      * Logs all the configuration parameters of MongoDB Sink to the instrumentation logger,
-     * in Debug Mode
+     * in Debug Mode.
      *
      * @param mongoSinkConfig the mongo sink config object
      * @param instrumentation the instrumentation containing the logger
-     *
      * @throws NullPointerException if any of the parameters of MongoSinkConfig
-     * is null, i.e. if the user does not specify the value of the
-     * corresponding environment variable before launching Firehose.
+     *                              is null, i.e. if the user does not specify the value of the
+     *                              corresponding environment variable before launching Firehose.
      */
     public static void logMongoConfig(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
         String mongoConfig = String.format("\n\tMONGO connection urls: %s"
