@@ -11,7 +11,7 @@ import lombok.experimental.UtilityClass;
 public class MongoSinkFactoryUtil {
 
     /**
-     * Logs all the configuration parameters of MongoDB Sink to the instrumentation logger
+     * Logs all the configuration parameters of MongoDB Sink to the instrumentation logger.
      *
      * @param mongoSinkConfig the mongo sink config
      * @param instrumentation the instrumentation containing the logger
