@@ -31,6 +31,7 @@ public class MongoSinkClientUtil {
      *                                  is an empty string or not assigned any value by the user.
      *                                  This exception is also thrown if the URL does not contain
      *                                  any or both of hostname/ IP address and the port
+     * @since 0.1
      */
     public static List<ServerAddress> getServerAddresses(String mongoConnectionUrls, Instrumentation instrumentation) {
         if (mongoConnectionUrls != null && !mongoConnectionUrls.isEmpty()) {
@@ -56,6 +57,7 @@ public class MongoSinkClientUtil {
      *
      * @param mongoRetryStatusCodeBlacklist the mongo retry status code blacklist
      * @return the status codes as list
+     * @since 0.1
      */
     public static List<String> getStatusCodesAsList(String mongoRetryStatusCodeBlacklist) {
         return Arrays
@@ -80,6 +82,7 @@ public class MongoSinkClientUtil {
      * @param mongoSinkConfig the mongo sink config
      * @param instrumentation the instrumentation
      * @return the mongo client
+     * @since 0.1
      */
     public static MongoClient buildMongoClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
         List<ServerAddress> serverAddresses = getServerAddresses(mongoSinkConfig.getSinkMongoConnectionUrls(), instrumentation);

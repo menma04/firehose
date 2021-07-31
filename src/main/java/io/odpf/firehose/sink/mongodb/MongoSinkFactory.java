@@ -25,15 +25,16 @@ public class MongoSinkFactory implements SinkFactory {
     /**
      * Creates MongoDB sink.
      *
-     * @param configuration  the configuration
+     * @param configuration  the configuration map
      * @param statsDReporter the stats d reporter
      * @param stencilClient  the stencil client
      * @return created sink
+     * @since 0.1
      */
     @Override
     public Sink create(Map<String, String> configuration, StatsDReporter statsDReporter, StencilClient stencilClient) {
         MongoSinkConfig mongoSinkConfig = ConfigFactory.create(MongoSinkConfig.class, configuration);
-        Instrumentation instrumentation = new Instrumentation(statsDReporter, io.odpf.firehose.sink.mongodb.MongoSinkFactory.class);
+        Instrumentation instrumentation = new Instrumentation(statsDReporter, MongoSinkFactory.class);
 
         MongoSinkFactoryUtil.logMongoConfig(mongoSinkConfig, instrumentation);
         MongoRequestHandler mongoRequestHandler = new MongoRequestHandlerFactory(mongoSinkConfig, new Instrumentation(statsDReporter, MongoRequestHandlerFactory.class),

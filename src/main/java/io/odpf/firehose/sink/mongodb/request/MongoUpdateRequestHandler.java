@@ -23,6 +23,7 @@ public class MongoUpdateRequestHandler extends MongoRequestHandler {
      * @param jsonSerializer       the json serializer
      * @param mongoSinkRequestType the mongo sink request type
      * @param mongoPrimaryKey      the mongo primary key
+     * @since 0.1
      */
     public MongoUpdateRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer, MongoSinkRequestType mongoSinkRequestType, String mongoPrimaryKey) {
         super(messageType, jsonSerializer);

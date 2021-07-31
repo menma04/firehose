@@ -27,6 +27,7 @@ public abstract class MongoRequestHandler {
      *
      * @param messageType    the message type, i.e JSON/Protobuf
      * @param jsonSerializer the json serializer
+     * @since 0.1
      */
     public MongoRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer) {
         this.messageType = messageType;
@@ -38,6 +39,7 @@ public abstract class MongoRequestHandler {
      * Can create the specified request type or not.
      *
      * @return true if the specified request type can be created otherwise false
+     * @since 0.1
      */
     public abstract boolean canCreate();
 
@@ -48,6 +50,7 @@ public abstract class MongoRequestHandler {
      *
      * @param message the message
      * @return the request
+     * @since 0.1
      */
     public abstract WriteModel<Document> getRequest(Message message);
 
@@ -62,6 +65,7 @@ public abstract class MongoRequestHandler {
      *
      * @param message the message
      * @return the JSON string parsed from the message
+     * @since 0.1
      */
     protected String extractPayload(Message message) {
         if (messageType.equals(MongoSinkMessageType.PROTOBUF)) {
@@ -79,6 +83,7 @@ public abstract class MongoRequestHandler {
      * @return the field from json
      * @throws IllegalArgumentException if the key whose value is requested
      *                                  is null, in the JSONObject
+     * @since 0.1
      */
     protected String getFieldFromJSON(JSONObject jsonObject, String key) {
         Object valueAtKey = jsonObject.get(key);
@@ -97,6 +102,7 @@ public abstract class MongoRequestHandler {
      *                            contains incorrect JSON syntax. The Exception will be initialized
      *                            with the details and cause of the error which caused the exception
      *                            to be thrown.
+     * @since 0.1
      */
     protected JSONObject getJSONObject(String jsonString) {
         try {

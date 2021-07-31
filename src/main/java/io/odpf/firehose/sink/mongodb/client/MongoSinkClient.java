@@ -53,6 +53,7 @@ public class MongoSinkClient implements Closeable {
      *
      * @param request the bulk request
      * @return the list of non-blacklisted Bulk Write errors, if any, else returns empty list
+     * @since 0.1
      */
     public List<BulkWriteError> processRequest(List<WriteModel<Document>> request) {
         List<BulkWriteError> writeErrors = new ArrayList<>();
@@ -83,6 +84,7 @@ public class MongoSinkClient implements Closeable {
      * Handle write errors.
      *
      * @param writeErrors the write errors
+     * @since 0.1
      */
     private void logErrors(List<BulkWriteError> writeErrors) {
 

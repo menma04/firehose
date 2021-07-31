@@ -17,6 +17,7 @@ public class MongoSinkFactoryUtil {
      *
      * @param mongoSinkConfig the mongo sink config object
      * @param instrumentation the instrumentation containing the logger
+     * @since 0.1
      */
     public static void logMongoConfig(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
         String mongoConfig = String.format("\n\tMONGO connection urls: %s"
