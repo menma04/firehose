@@ -14,7 +14,7 @@ import org.json.simple.parser.ParseException;
 import java.nio.charset.Charset;
 
 /**
- * The type Mongo request handler.
+ * The abstract class Mongo request handler.
  */
 public abstract class MongoRequestHandler {
     private final MongoSinkMessageType messageType;

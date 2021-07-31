@@ -20,11 +20,18 @@ import java.util.stream.Collectors;
 public class MongoSinkClientUtil {
 
     /**
-     * Gets server addresses.
+     * Extracts the MongoDB Server URLs from the connection URLs string and converts the
+     * URL of each MongoDB server to a ServerAddress object and then stores these addresses
+     * of all the MongoDB servers into a list, which is returned.
      *
      * @param mongoConnectionUrls the mongo connection urls
      * @param instrumentation     the instrumentation
-     * @return the server addresses
+     * @return the list of server addresses
+     * @throws IllegalArgumentException if the environment variable SINK_MONGO_CONNECTION_URLS
+     * is an empty string or not assigned any value by the user.
+     * This exception is also thrown if the URL does not contain
+     * any or both of hostname/ IP address and the port
+     *
      */
     public static List<ServerAddress> getServerAddresses(String mongoConnectionUrls, Instrumentation instrumentation) {
         if (mongoConnectionUrls != null && !mongoConnectionUrls.isEmpty()) {
@@ -61,6 +68,16 @@ public class MongoSinkClientUtil {
 
     /**
      * Builds the Mongo client.
+     *
+     * This method extracts the MongoDB Server URL and port from the MongoSinkConfig.
+     * Multiple server seeds are also allowed to connect the MongoClient
+     *
+     * Then, this method checks whether the parameter SINK_MONGO_AUTH_ENABLE is true or not
+     * If Authentication parameter is enabled then it extracts the login credentials, i.e.
+     * username, password and the MongoDB authentication database.
+     * If Authentication parameter is disabled then the MongoClient session is started
+     * in non-authentication mode.
+     *
      *
      * @param mongoSinkConfig the mongo sink config
      * @param instrumentation the instrumentation

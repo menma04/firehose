@@ -27,7 +27,12 @@ public class MongoRequestHandlerFactory {
     /**
      * Gets request handler.
      *
-     * @return the request handler
+     * @return the MongoRequestHandler
+     *
+     * @throws IllegalArgumentException if the sink type parameter specified in
+     * MongoSinkConfig, i.e. the value specified by the environment variable
+     * SINK_MONGO_MODE_UPDATE_ONLY_ENABLE is any value other than UPDATE_ONLY
+     * and INSERT_OR_UPDATE.
      */
     public MongoRequestHandler getRequestHandler() {
         MongoSinkRequestType mongoSinkRequestType = mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable() ? UPDATE_ONLY : INSERT_OR_UPDATE;
