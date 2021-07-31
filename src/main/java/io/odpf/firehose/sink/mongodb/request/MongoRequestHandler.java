@@ -44,7 +44,7 @@ public abstract class MongoRequestHandler {
     /**
      * This method creates a MongoDB WriteModel request for the provided
      * Message, after serializing and extracting the logMessage from
-     * the raw byte array of the Message
+     * the raw byte array of the Message.
      *
      * @param message the message
      * @return the request
@@ -72,14 +72,13 @@ public abstract class MongoRequestHandler {
 
     /**
      * This method extracts the value of the required key from the
-     * provided JSONObject
+     * provided JSONObject.
      *
      * @param jsonObject the JSONObject
-     * @param key the key whose value is to be extracted from the JSONObject
+     * @param key        the key whose value is to be extracted from the JSONObject
      * @return the field from json
-     *
      * @throws IllegalArgumentException if the key whose value is requested
-     * is null, in the JSONObject
+     *                                  is null, in the JSONObject
      */
     protected String getFieldFromJSON(JSONObject jsonObject, String key) {
         Object valueAtKey = jsonObject.get(key);
@@ -90,15 +89,14 @@ public abstract class MongoRequestHandler {
     }
 
     /**
-     * This method parses the JSON string to the JSON object
+     * This method parses the JSON string to the JSON object.
      *
      * @param jsonString the json string
      * @return the json object
-     *
      * @throws JsonParseException if the JSON string provided is invalid or
-     * contains incorrect JSON syntax. The Exception will be initialized
-     * with the details and cause of the error which caused the exception
-     * to be thrown.
+     *                            contains incorrect JSON syntax. The Exception will be initialized
+     *                            with the details and cause of the error which caused the exception
+     *                            to be thrown.
      */
     protected JSONObject getJSONObject(String jsonString) {
         try {
