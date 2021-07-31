@@ -1,6 +1,5 @@
 package io.odpf.firehose.sink.mongodb.request;
 
-
 import com.mongodb.client.model.WriteModel;
 import io.odpf.firehose.config.enums.MongoSinkMessageType;
 import io.odpf.firehose.consumer.Message;
@@ -14,7 +13,9 @@ import org.json.simple.parser.ParseException;
 import java.nio.charset.Charset;
 
 /**
- * The abstract class Mongo request handler.
+ * The abstract class Mongo request handler. This class is responsible for
+ * deserializing the raw message byte array, extracting the logMessage from
+ * the consumed record and creating a WriteModel request for the message
  */
 public abstract class MongoRequestHandler {
     private final MongoSinkMessageType messageType;
@@ -24,7 +25,7 @@ public abstract class MongoRequestHandler {
     /**
      * Instantiates a new Mongo request handler.
      *
-     * @param messageType    the message type
+     * @param messageType    the message type, i.e JSON/Protobuf
      * @param jsonSerializer the json serializer
      */
     public MongoRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer) {
@@ -41,7 +42,9 @@ public abstract class MongoRequestHandler {
     public abstract boolean canCreate();
 
     /**
-     * Gets request.
+     * This method creates a MongoDB WriteModel request for the provided
+     * Message, after serializing and extracting the logMessage from
+     * the raw byte array of the Message
      *
      * @param message the message
      * @return the request
@@ -49,7 +52,13 @@ public abstract class MongoRequestHandler {
     public abstract WriteModel<Document> getRequest(Message message);
 
     /**
-     * Extract payload string.
+     * This method returns the JSON string parsed from the input message.
+     * If the input message type is Protobuf, then the raw Protobuf byte
+     * array of the log message is first serialized to JSON and then
+     * the value stored in the logMessage key is returned.
+     * If the input message type is JSON, then the raw JSON byte array,
+     * is first deserialized and the then the value stored in the
+     * logMessage key is returned.
      *
      * @param message the message
      * @return the JSON string parsed from the message
@@ -62,10 +71,15 @@ public abstract class MongoRequestHandler {
     }
 
     /**
-     * Gets field from json.
+     * This method extracts the value of the required key from the
+     * provided JSONObject
      *
-     * @param key the key
+     * @param jsonObject the JSONObject
+     * @param key the key whose value is to be extracted from the JSONObject
      * @return the field from json
+     *
+     * @throws IllegalArgumentException if the key whose value is requested
+     * is null, in the JSONObject
      */
     protected String getFieldFromJSON(JSONObject jsonObject, String key) {
         Object valueAtKey = jsonObject.get(key);
@@ -76,10 +90,15 @@ public abstract class MongoRequestHandler {
     }
 
     /**
-     * Gets json object.
+     * This method parses the JSON string to the JSON object
      *
      * @param jsonString the json string
      * @return the json object
+     *
+     * @throws JsonParseException if the JSON string provided is invalid or
+     * contains incorrect JSON syntax. The Exception will be initialized
+     * with the details and cause of the error which caused the exception
+     * to be thrown.
      */
     protected JSONObject getJSONObject(String jsonString) {
         try {
