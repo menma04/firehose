@@ -10,12 +10,11 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class MongoSinkFactoryUtil {
 
-
     /**
-     * Log mongo config.
+     * Logs all the configuration parameters of MongoDB Sink to the instrumentation logger
      *
      * @param mongoSinkConfig the mongo sink config
-     * @param instrumentation the instrumentation
+     * @param instrumentation the instrumentation containing the logger
      */
     public static void logMongoConfig(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
         String mongoConfig = String.format("\n\tMONGO connection urls: %s\n\tMONGO DB name: %s\n\tMONGO Primary Key: %s\n\tMONGO message type: %s"
@@ -25,7 +24,7 @@ public class MongoSinkFactoryUtil {
                 mongoSinkConfig.getSinkMongoConnectionUrls(), mongoSinkConfig.getSinkMongoDBName(), mongoSinkConfig.getSinkMongoPrimaryKey(), mongoSinkConfig.getSinkMongoInputMessageType(),
                 mongoSinkConfig.getSinkMongoCollectionName(), mongoSinkConfig.getSinkMongoRequestTimeoutMs(), mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist(),
                 mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable(), true);
-        instrumentation.logDebug(mongoConfig);
 
+        instrumentation.logDebug(mongoConfig);
     }
 }
