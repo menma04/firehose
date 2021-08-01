@@ -15,7 +15,7 @@ import org.bson.Document;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,19 +62,17 @@ public class MongoSinkClient implements Closeable {
      * @since 0.1
      */
     public List<BulkWriteError> processRequest(List<WriteModel<Document>> request) {
-        List<BulkWriteError> writeErrors = new ArrayList<>();
         try {
             logResults(mongoCollection.bulkWrite(request));
-
+            return Collections.emptyList();
         } catch (MongoBulkWriteException writeException) {
             instrumentation.logWarn("Bulk request failed");
-
-            writeErrors = writeException.getWriteErrors();
+            List<BulkWriteError> writeErrors = writeException.getWriteErrors();
             logErrors(writeErrors);
+            return writeErrors.stream()
+                    .filter(writeError -> !mongoRetryStatusCodeBlacklist.contains(String.valueOf(writeError.getCode())))
+                    .collect(Collectors.toList());
         }
-        return writeErrors.stream()
-                .filter(writeError -> !mongoRetryStatusCodeBlacklist.contains(String.valueOf(writeError.getCode())))
-                .collect(Collectors.toList());
     }
 
     private void logResults(BulkWriteResult writeResult) {
