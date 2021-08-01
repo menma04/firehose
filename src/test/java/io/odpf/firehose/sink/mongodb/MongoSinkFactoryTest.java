@@ -65,7 +65,6 @@ public class MongoSinkFactoryTest {
         mongoSinkFactory.create(configuration, statsDReporter, stencilClient);
     }
 
-
     @Test
     public void shouldThrowExceptionWhenServerURLsEmpty() {
         configuration.put("SINK_MONGO_CONNECTION_URLS", "");

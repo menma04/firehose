@@ -25,13 +25,18 @@ public class MongoRequestHandlerFactory {
     private final MessageToJson jsonSerializer;
 
     /**
-     * Gets request handler.
+     * Gets request handler. This method returns the MongoDB update/upsert
+     * request handler according to the value specified by the environment
+     * variable SINK_MONGO_MODE_UPDATE_ONLY_ENABLE.
+     * UpdateRequestHandler is returned if the SINK_MONGO_MODE_UPDATE_ONLY_ENABLE
+     * is set to UPDATE_ONLY
+     * UpsertRequestHandler is returned if the SINK_MONGO_MODE_UPDATE_ONLY_ENABLE
+     * is set to INSERT_OR_UPDATE
      *
      * @return the MongoRequestHandler
      * @throws IllegalArgumentException if the sink type parameter specified in
-     *                                  MongoSinkConfig, i.e. the value specified by the environment variable
-     *                                  SINK_MONGO_MODE_UPDATE_ONLY_ENABLE is any value other than UPDATE_ONLY
-     *                                  and INSERT_OR_UPDATE.
+     *                                  MongoSinkConfig, i.e. the value specified by the MongoRequestType
+     *                                  is any value other than UPDATE_ONLY and INSERT_OR_UPDATE.
      * @since 0.1
      */
     public MongoRequestHandler getRequestHandler() {

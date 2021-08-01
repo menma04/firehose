@@ -9,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Random;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -29,7 +31,17 @@ public class MongoRequestHandlerFactoryTest {
     }
 
     @Test
-    public void shouldReturnInsertRequestHandler() {
+    public void shouldReturnMongoRequestHandler() {
+        when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(new Random().nextBoolean());
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
+                MongoSinkMessageType.JSON, jsonSerializer);
+        MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
+
+        assertEquals(MongoRequestHandler.class, requestHandler.getClass().getSuperclass());
+    }
+
+    @Test
+    public void shouldReturnUpsertRequestHandler() {
         when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(false);
         MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
                 MongoSinkMessageType.JSON, jsonSerializer);
