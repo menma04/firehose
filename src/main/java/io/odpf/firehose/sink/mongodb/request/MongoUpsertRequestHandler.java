@@ -29,8 +29,8 @@ public class MongoUpsertRequestHandler extends MongoRequestHandler {
      *
      * @param messageType          the message type
      * @param jsonSerializer       the json serializer
-     * @param mongoSinkRequestType the mongo sink request type
-     * @param mongoPrimaryKey      the mongo primary key
+     * @param mongoSinkRequestType the Mongo sink request type, i.e. UPDATE_ONLY/INSERT_OR_UPDATE
+     * @param mongoPrimaryKey      the Mongo primary key
      * @since 0.1
      */
     public MongoUpsertRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer, MongoSinkRequestType mongoSinkRequestType, String mongoPrimaryKey) {
