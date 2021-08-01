@@ -82,6 +82,12 @@ public class MongoSinkClient implements Closeable {
         } else {
             instrumentation.logWarn("Bulk Write operation was not acknowledged");
         }
+        instrumentation.logDebug(
+                "Inserted Count %d. Matched Count %d. Deleted Count %d. Modified Count %d.",
+                writeResult.getInsertedCount(),
+                writeResult.getMatchedCount(),
+                writeResult.getDeletedCount(),
+                writeResult.getModifiedCount());
     }
 
     /**

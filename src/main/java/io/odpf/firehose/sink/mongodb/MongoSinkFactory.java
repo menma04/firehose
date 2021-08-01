@@ -37,14 +37,14 @@ public class MongoSinkFactory implements SinkFactory {
         MongoSinkConfig mongoSinkConfig = ConfigFactory.create(MongoSinkConfig.class, configuration);
         Instrumentation instrumentation = new Instrumentation(statsDReporter, MongoSinkFactory.class);
 
-        MongoSinkFactoryUtil.logMongoConfig(mongoSinkConfig, instrumentation);
+        MongoSinkFactoryUtil.logMongoConfig(mongoSinkConfig, new Instrumentation(statsDReporter, MongoSinkFactoryUtil.class));
         MongoRequestHandler mongoRequestHandler = new MongoRequestHandlerFactory(mongoSinkConfig, new Instrumentation(statsDReporter, MongoRequestHandlerFactory.class),
                 mongoSinkConfig.getSinkMongoPrimaryKey(), mongoSinkConfig.getSinkMongoInputMessageType(),
                 new MessageToJson(new ProtoParser(stencilClient, mongoSinkConfig.getInputSchemaProtoClass()), true, false)
 
         ).getRequestHandler();
 
-        MongoSinkClient mongoSinkClient = new MongoSinkClient(mongoSinkConfig, instrumentation);
+        MongoSinkClient mongoSinkClient = new MongoSinkClient(mongoSinkConfig, new Instrumentation(statsDReporter, MongoSinkClient.class));
 
         instrumentation.logInfo("MONGO connection established");
         return new MongoSink(new Instrumentation(statsDReporter, MongoSink.class), SinkType.MONGODB.name().toLowerCase(), mongoRequestHandler,
