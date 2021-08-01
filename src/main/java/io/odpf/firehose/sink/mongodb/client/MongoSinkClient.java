@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static io.odpf.firehose.metrics.Metrics.SINK_MESSAGES_DROP_TOTAL;
 
 /**
- * The Mongo response handler.
+ * The Mongo Sink Client.
  */
 @AllArgsConstructor
 public class MongoSinkClient implements Closeable {
@@ -32,6 +32,12 @@ public class MongoSinkClient implements Closeable {
     private final List<String> mongoRetryStatusCodeBlacklist;
     private final MongoClient mongoClient;
 
+    /**
+     * Instantiates a new Mongo sink client.
+     *
+     * @param mongoSinkConfig the mongo sink config
+     * @param instrumentation the instrumentation
+     */
     public MongoSinkClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
 
         this.instrumentation = instrumentation;
@@ -81,7 +87,7 @@ public class MongoSinkClient implements Closeable {
     }
 
     /**
-     * Handle write errors.
+     * This method logs errors.
      *
      * @param writeErrors the write errors
      * @since 0.1
