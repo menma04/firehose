@@ -88,6 +88,10 @@ public class MongoSinkClient implements Closeable {
 
     /**
      * This method logs errors.
+     * It also checks whether the status code of a bulk write error
+     * belongs to blacklist or not. If so, then it logs that the
+     * message has been dropped and will not be retried, due to
+     * blacklisted status code.
      *
      * @param writeErrors the write errors
      * @since 0.1

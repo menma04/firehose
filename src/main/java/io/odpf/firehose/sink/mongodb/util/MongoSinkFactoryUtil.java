@@ -6,6 +6,8 @@ import lombok.experimental.UtilityClass;
 
 /**
  * The utility helper class for the MongoSinkFactory.
+ *
+ * @since 0.1
  */
 @UtilityClass
 public class MongoSinkFactoryUtil {

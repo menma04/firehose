@@ -10,7 +10,14 @@ import org.bson.Document;
 import org.json.simple.JSONObject;
 
 /**
- * Mongo request handler for upsert operation.
+ * The Mongo update request handler.
+ * This class is responsible for creating requests when one
+ * or more fields of a MongoDB document need to be updated,
+ * if a document with that primary key already exists,
+ * otherwise a new document is inserted into the MongoDB
+ * collection.
+ *
+ * @since 0.1
  */
 public class MongoUpsertRequestHandler extends MongoRequestHandler {
 

@@ -10,6 +10,8 @@ import org.json.simple.JSONObject;
 
 /**
  * The Mongo update request handler.
+ * This class is responsible for creating requests when one
+ * or more fields of a MongoDB document need to be updated.
  */
 public class MongoUpdateRequestHandler extends MongoRequestHandler {
 

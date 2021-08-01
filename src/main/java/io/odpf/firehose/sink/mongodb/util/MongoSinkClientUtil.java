@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * The type Mongo sink factory util.
+ * The utility class for assisting in the creation and
+ * configuration of a MongoSinkClient.
+ * @since 0.1
  */
 @UtilityClass
 public class MongoSinkClientUtil {

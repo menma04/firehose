@@ -23,7 +23,8 @@ import java.util.Map;
 public class MongoSinkFactory implements SinkFactory {
 
     /**
-     * Creates MongoDB sink.
+     * Creates MongoDB sink. Logs a success message to instrumentation
+     * upon successful creation of the sink.
      *
      * @param configuration  the configuration map
      * @param statsDReporter the stats d reporter
