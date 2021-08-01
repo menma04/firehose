@@ -36,7 +36,12 @@ public abstract class MongoRequestHandler {
     }
 
     /**
-     * Can create the specified request type or not.
+     * Check if can create the specified request type or not.
+     * This method returns true if the Mongo request type parameter
+     * matches the class of request handler object, i.e. -
+     * UPDATE_ONLY for UpdateRequestHandler
+     * INSERT_OR_UPDATE for UpsertRequestHandler
+     *
      *
      * @return true if the specified request type can be created otherwise false
      * @since 0.1
