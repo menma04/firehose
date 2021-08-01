@@ -19,6 +19,7 @@ import java.util.Map;
 
 /**
  * Sink factory to configure and create MongoDB sink.
+ * @since 0.1
  */
 public class MongoSinkFactory implements SinkFactory {
 

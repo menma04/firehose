@@ -23,6 +23,12 @@ import static io.odpf.firehose.metrics.Metrics.SINK_MESSAGES_DROP_TOTAL;
 
 /**
  * The Mongo Sink Client.
+ * This class is responsible for creating and closing the MongoDB sink
+ * as well as performing bulk writes to the MongoDB collection.
+ * It also logs to the instrumentation whether the bulk write has
+ * succeeded or failed, as well as the cause of the failures.
+ *
+ * @since 0.1
  */
 @AllArgsConstructor
 public class MongoSinkClient implements Closeable {
@@ -37,6 +43,7 @@ public class MongoSinkClient implements Closeable {
      *
      * @param mongoSinkConfig the mongo sink config
      * @param instrumentation the instrumentation
+     * @since 0.1
      */
     public MongoSinkClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
 

@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * MongoDB sink.
  * This class contains methods to create and execute a bulk request
  * and obtain a list of messages which failed to push to the sink.
+ * @since 0.1
  */
 public class MongoSink extends AbstractSink {
 
