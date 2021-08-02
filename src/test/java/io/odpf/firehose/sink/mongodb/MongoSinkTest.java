@@ -7,6 +7,7 @@ import com.mongodb.bulk.BulkWriteError;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.ReplaceOneModel;
 import com.mongodb.client.model.ReplaceOptions;
+import io.odpf.firehose.config.MongoSinkConfig;
 import io.odpf.firehose.config.enums.SinkType;
 import io.odpf.firehose.consumer.Message;
 import io.odpf.firehose.metrics.Instrumentation;
@@ -42,6 +43,9 @@ public class MongoSinkTest {
     private MongoClient client;
 
     @Mock
+    private MongoSinkConfig mongoSinkConfig;
+
+    @Mock
     private MongoRequestHandler mongoRequestHandler;
 
     private MongoSinkClient mongoSinkClient;
@@ -67,7 +71,7 @@ public class MongoSinkTest {
 
         mongoRetryStatusCodeBlacklist.add("11000");
         mongoRetryStatusCodeBlacklist.add("502");
-        mongoSinkClient = new MongoSinkClient(mongoCollection, instrumentation, mongoRetryStatusCodeBlacklist, client);
+        mongoSinkClient = new MongoSinkClient(mongoCollection, instrumentation, mongoRetryStatusCodeBlacklist, client, mongoSinkConfig);
         when(mongoRequestHandler.getRequest(messageWithJSON)).thenReturn(new ReplaceOneModel<>(
                 new Document("customer_id", "35452"),
                 new Document(),
@@ -107,7 +111,7 @@ public class MongoSinkTest {
         List<BulkWriteError> writeErrors = Arrays.asList(writeError1, writeError2);
 
         MongoSink mongoSink = new MongoSink(instrumentation, SinkType.MONGODB.name(), mongoRequestHandler,
-                new MongoSinkClient(mongoCollection, instrumentation, new ArrayList<>(), client));
+                new MongoSinkClient(mongoCollection, instrumentation, new ArrayList<>(), client, mongoSinkConfig));
 
         when(mongoCollection.bulkWrite(any())).thenThrow(new MongoBulkWriteException(new MongoSinkClientTest.BulkWriteResultMock(false, 0, 0),
                 writeErrors, null, new ServerAddress()));

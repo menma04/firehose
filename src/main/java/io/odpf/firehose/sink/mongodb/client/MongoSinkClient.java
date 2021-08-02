@@ -37,6 +37,7 @@ public class MongoSinkClient implements Closeable {
     private final Instrumentation instrumentation;
     private final List<String> mongoRetryStatusCodeBlacklist;
     private final MongoClient mongoClient;
+    private final MongoSinkConfig mongoSinkConfig;
 
     /**
      * Instantiates a new Mongo sink client.
@@ -46,7 +47,7 @@ public class MongoSinkClient implements Closeable {
      * @since 0.1
      */
     public MongoSinkClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
-
+        this.mongoSinkConfig = mongoSinkConfig;
         this.instrumentation = instrumentation;
         mongoClient = MongoSinkClientUtil.buildMongoClient(mongoSinkConfig, instrumentation);
 
@@ -70,7 +71,7 @@ public class MongoSinkClient implements Closeable {
      */
     public List<BulkWriteError> processRequest(List<WriteModel<Document>> request) {
         try {
-            logResults(mongoCollection.bulkWrite(request));
+            logResults(mongoCollection.bulkWrite(request), request.size());
             return Collections.emptyList();
         } catch (MongoBulkWriteException writeException) {
             instrumentation.logWarn("Bulk request failed");
@@ -82,19 +83,29 @@ public class MongoSinkClient implements Closeable {
         }
     }
 
-    private void logResults(BulkWriteResult writeResult) {
+    private void logResults(BulkWriteResult writeResult, int messageCount) {
 
+        int totalWriteCount = writeResult.getModifiedCount() + writeResult.getUpserts().size();
         if (writeResult.wasAcknowledged()) {
-            instrumentation.logInfo("Bulk Write operation was successfully acknowledged");
+            if (mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable() && totalWriteCount != messageCount) {
+
+                instrumentation.incrementCounterWithTags(SINK_MESSAGES_DROP_TOTAL, "cause=Primary Key for update request not found");
+                instrumentation.logWarn("Message dropped because Primary Key for update request was not found in the MongoDB collection");
+
+            } else {
+                instrumentation.logInfo("Bulk Write operation was successfully acknowledged");
+            }
+
         } else {
             instrumentation.logWarn("Bulk Write operation was not acknowledged");
         }
-        instrumentation.logDebug(
-                "Inserted Count %d. Matched Count %d. Deleted Count %d. Modified Count %d.",
-                writeResult.getInsertedCount(),
+        instrumentation.logInfo(
+                "Inserted Count {}. Matched Count {}. Deleted Count {}. Updated Count {}. Total Modified Count {}",
+                writeResult.getUpserts().size(),
                 writeResult.getMatchedCount(),
                 writeResult.getDeletedCount(),
-                writeResult.getModifiedCount());
+                writeResult.getModifiedCount(),
+                totalWriteCount);
     }
 
     /**

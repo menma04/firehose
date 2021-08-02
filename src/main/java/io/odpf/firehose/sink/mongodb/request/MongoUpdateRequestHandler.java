@@ -42,12 +42,13 @@ public class MongoUpdateRequestHandler extends MongoRequestHandler {
     public ReplaceOneModel<Document> getRequest(Message message) {
         String logMessage = extractPayload(message);
         JSONObject logMessageJSONObject = getJSONObject(logMessage);
+        String primaryKey = getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey);
 
-        Document document = new Document("_id", getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey));
+        Document document = new Document("_id", primaryKey);
         document.putAll(logMessageJSONObject);
 
         return new ReplaceOneModel<>(
-                new Document("_id", getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey)),
+                new Document("_id", primaryKey),
                 document);
     }
 }
