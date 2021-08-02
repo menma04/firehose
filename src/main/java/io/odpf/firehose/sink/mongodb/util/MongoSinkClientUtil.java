@@ -39,6 +39,7 @@ public class MongoSinkClientUtil {
         if (mongoConnectionUrls != null && !mongoConnectionUrls.isEmpty()) {
             List<String> mongoNodes = Arrays.asList(mongoConnectionUrls.trim().split(","));
             List<ServerAddress> serverAddresses = new ArrayList<>(mongoNodes.size());
+
             mongoNodes.forEach((String mongoNode) -> {
                 List<String> node = Arrays.stream(mongoNode.trim().split(":"))
                         .filter(nodeString -> !nodeString.isEmpty()).collect(Collectors.toList());

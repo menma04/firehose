@@ -51,7 +51,6 @@ public class MongoUpsertRequestHandler extends MongoRequestHandler {
 
         Document document = new Document("_id", getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey));
         document.putAll(logMessageJSONObject);
-
         return new ReplaceOneModel<>(
                 new Document("_id", getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey)),
                 document,

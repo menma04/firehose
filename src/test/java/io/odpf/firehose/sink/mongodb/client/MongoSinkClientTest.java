@@ -185,6 +185,18 @@ public class MongoSinkClientTest {
         verify(instrumentation, times(0)).logWarn("Bulk request failed count: {}", 2);
     }
 
+    @Test
+    public void shouldLogBulkRequestFailedWhenPrimaryKeyNotFound() {
+        MongoSinkClient mongoSinkClient = new MongoSinkClient(mongoCollection, instrumentation,
+                mongoRetryStatusCodeBlacklist, mongoClient, mongoSinkConfig);
+
+        when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(true);
+        when(mongoCollection.bulkWrite(request)).thenReturn(new BulkWriteResultMock(true, 0, 0));
+        mongoSinkClient.processRequest(request);
+
+        verify(instrumentation, times(1)).logWarn("Bulk request failed count: {}", 2);
+    }
+
     public static class BulkWriteResultMock extends BulkWriteResult {
 
         @Mock
@@ -214,7 +226,7 @@ public class MongoSinkClientTest {
 
         @Override
         public int getMatchedCount() {
-            return 0;
+            return modifiedCount;
         }
 
         @Override

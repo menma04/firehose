@@ -88,9 +88,14 @@ public class MongoSinkClient implements Closeable {
         int totalWriteCount = writeResult.getModifiedCount() + writeResult.getUpserts().size();
         if (writeResult.wasAcknowledged()) {
             if (mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable() && totalWriteCount != messageCount) {
+                int failureCount = messageCount - totalWriteCount;
+                instrumentation.logWarn("Bulk request failed");
 
-                instrumentation.incrementCounterWithTags(SINK_MESSAGES_DROP_TOTAL, "cause=Primary Key for update request not found");
+                for (int i = 0; i < failureCount; i++) {
+                    instrumentation.incrementCounterWithTags(SINK_MESSAGES_DROP_TOTAL, "cause=Primary Key for update request not found");
+                }
                 instrumentation.logWarn("Message dropped because Primary Key for update request was not found in the MongoDB collection");
+                instrumentation.logWarn("Bulk request failed count: {}", failureCount);
 
             } else {
                 instrumentation.logInfo("Bulk Write operation was successfully acknowledged");
