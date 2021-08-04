@@ -1,11 +1,17 @@
 package io.odpf.firehose.sink.mongodb.util;
 
-import io.odpf.firehose.config.MongoSinkConfig;
+import com.mongodb.ServerAddress;
 import io.odpf.firehose.metrics.Instrumentation;
 import lombok.experimental.UtilityClass;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * The utility helper class for the MongoSinkFactory.
+ * The utility class for assisting in the creation and
+ * configuration of a MongoSinkClient.
  *
  * @since 0.1
  */
@@ -13,39 +19,51 @@ import lombok.experimental.UtilityClass;
 public class MongoSinkFactoryUtil {
 
     /**
-     * Logs all the configuration parameters of MongoDB Sink to the instrumentation
-     * logger, in Debug Mode. If the parameter is null, i.e. not specified, then the
-     * logger logs "null" to the log console.
+     * Extracts the MongoDB Server URLs from the connection URLs string and converts the
+     * URL of each MongoDB server to a ServerAddress object and then stores these addresses
+     * of all the MongoDB servers into a list, which is returned.
      *
-     * @param mongoSinkConfig the mongo sink config object
-     * @param instrumentation the instrumentation containing the logger
+     * @param mongoConnectionUrls the mongo connection urls
+     * @param instrumentation     the instrumentation
+     * @return the list of server addresses
+     * @throws IllegalArgumentException if the environment variable SINK_MONGO_CONNECTION_URLS
+     *                                  is an empty string or not assigned any value by the user.
+     *                                  This exception is also thrown if the URL does not contain
+     *                                  any or both of hostname/ IP address and the port
      * @since 0.1
      */
-    public static void logMongoConfig(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
-        String mongoConfig = String.format("\n\tMONGO connection urls: %s"
-                        + "\n\tMONGO Database name: %s"
-                        + "\n\tMONGO Primary Key: %s"
-                        + "\n\tMONGO input message type: %s"
-                        + "\n\tMONGO Collection Name: %s"
-                        + "\n\tMONGO request timeout in ms: %s"
-                        + "\n\tMONGO retry status code blacklist: %s"
-                        + "\n\tMONGO update only mode: %s"
-                        + "\n\tMONGO Authentication Enable: %s"
-                        + "\n\tMONGO Authentication Username: %s"
-                        + "\n\tMONGO Authentication Database: %s",
+    public static List<ServerAddress> getServerAddresses(String mongoConnectionUrls, Instrumentation instrumentation) {
+        if (mongoConnectionUrls != null && !mongoConnectionUrls.isEmpty()) {
+            List<String> mongoNodes = Arrays.asList(mongoConnectionUrls.trim().split(","));
+            List<ServerAddress> serverAddresses = new ArrayList<>(mongoNodes.size());
 
-                mongoSinkConfig.getSinkMongoConnectionUrls(),
-                mongoSinkConfig.getSinkMongoDBName(),
-                mongoSinkConfig.getSinkMongoPrimaryKey(),
-                mongoSinkConfig.getSinkMongoInputMessageType(),
-                mongoSinkConfig.getSinkMongoCollectionName(),
-                mongoSinkConfig.getSinkMongoRequestTimeoutMs(),
-                mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist(),
-                mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable(),
-                mongoSinkConfig.isSinkMongoAuthEnable(),
-                mongoSinkConfig.getSinkMongoAuthUsername(),
-                mongoSinkConfig.getSinkMongoAuthDB());
+            mongoNodes.forEach((String mongoNode) -> {
+                List<String> node = Arrays.stream(mongoNode.trim().split(":"))
+                        .filter(nodeString -> !nodeString.isEmpty()).collect(Collectors.toList());
+                if (node.size() != 2) {
+                    throw new IllegalArgumentException("SINK_MONGO_CONNECTION_URLS should contain host and port both");
+                }
+                serverAddresses.add(new ServerAddress(node.get(0).trim(), Integer.parseInt(node.get(1).trim())));
+            });
+            return serverAddresses;
+        } else {
+            instrumentation.logError("No connection URL found");
+            throw new IllegalArgumentException("SINK_MONGO_CONNECTION_URLS is empty or null");
+        }
+    }
 
-        instrumentation.logDebug(mongoConfig);
+    /**
+     * Gets status codes as list.
+     *
+     * @param mongoRetryStatusCodeBlacklist the mongo retry status code blacklist
+     * @return the status codes as list
+     * @since 0.1
+     */
+    public static List<String> getStatusCodesAsList(String mongoRetryStatusCodeBlacklist) {
+        return Arrays
+                .stream(mongoRetryStatusCodeBlacklist.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 }

@@ -33,45 +33,23 @@ public class MongoSinkFactoryTest {
         configuration = new HashMap<>();
         initMocks(this);
 
-        configuration.put("SINK_MONGO_DB_NAME", "myDb");
-        configuration.put("SINK_MONGO_COLLECTION_NAME", "sampleCollection");
+        configuration.put("SINK_MONGO_CONNECTION_URLS", "localhost:8080");
+        configuration.put("SINK_MONGO_DB_NAME", "sampleDatabase");
+        configuration.put("SINK_MONGO_PRIMARY_KEY", "customer_id");
+        configuration.put("SINK_MONGO_INPUT_MESSAGE_TYPE", "JSON");
+        configuration.put("SINK_MONGO_COLLECTION_NAME", "customers");
+        configuration.put("SINK_MONGO_REQUEST_TIMEOUT_MS", "8277");
+        configuration.put("SINK_MONGO_RETRY_STATUS_CODE_BLACKLIST", "11000");
+        configuration.put("SINK_MONGO_MODE_UPDATE_ONLY_ENABLE", "true");
+        configuration.put("SINK_MONGO_AUTH_ENABLE", "false");
+
     }
 
     @Test
     public void shouldCreateMongoSink() {
-        configuration.put("SINK_MONGO_CONNECTION_URLS", "localhost:9200 , localhost:9202 ");
 
         MongoSinkFactory mongoSinkFactory = new MongoSinkFactory();
         Sink sink = mongoSinkFactory.create(configuration, statsDReporter, stencilClient);
         assertEquals(MongoSink.class, sink.getClass());
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenServerURLsInvalid() {
-        configuration.put("SINK_MONGO_CONNECTION_URLS", "localhost:qfb");
-        thrown.expect(IllegalArgumentException.class);
-
-        MongoSinkFactory mongoSinkFactory = new MongoSinkFactory();
-        mongoSinkFactory.create(configuration, statsDReporter, stencilClient);
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenServerURLPortNotSpecified() {
-        configuration.put("SINK_MONGO_CONNECTION_URLS", "localhost");
-
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("SINK_MONGO_CONNECTION_URLS should contain host and port both");
-        MongoSinkFactory mongoSinkFactory = new MongoSinkFactory();
-        mongoSinkFactory.create(configuration, statsDReporter, stencilClient);
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenServerURLsEmpty() {
-        configuration.put("SINK_MONGO_CONNECTION_URLS", "");
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("SINK_MONGO_CONNECTION_URLS is empty or null");
-
-        MongoSinkFactory mongoSinkFactory = new MongoSinkFactory();
-        mongoSinkFactory.create(configuration, statsDReporter, stencilClient);
     }
 }

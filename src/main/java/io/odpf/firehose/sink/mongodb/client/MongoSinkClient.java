@@ -9,7 +9,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.WriteModel;
 import io.odpf.firehose.config.MongoSinkConfig;
 import io.odpf.firehose.metrics.Instrumentation;
-import io.odpf.firehose.sink.mongodb.util.MongoSinkClientUtil;
+import io.odpf.firehose.sink.mongodb.util.MongoSinkFactoryUtil;
 import lombok.AllArgsConstructor;
 import org.bson.Document;
 
@@ -46,14 +46,14 @@ public class MongoSinkClient implements Closeable {
      * @param instrumentation the instrumentation
      * @since 0.1
      */
-    public MongoSinkClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
+    public MongoSinkClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation, MongoClient mongoClient) {
         this.mongoSinkConfig = mongoSinkConfig;
         this.instrumentation = instrumentation;
-        mongoClient = MongoSinkClientUtil.buildMongoClient(mongoSinkConfig, instrumentation);
+        this.mongoClient = mongoClient;
 
         MongoDatabase database = mongoClient.getDatabase(mongoSinkConfig.getSinkMongoDBName());
         mongoCollection = database.getCollection(mongoSinkConfig.getSinkMongoCollectionName());
-        mongoRetryStatusCodeBlacklist = MongoSinkClientUtil.getStatusCodesAsList(mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist());
+        mongoRetryStatusCodeBlacklist = MongoSinkFactoryUtil.getStatusCodesAsList(mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist());
     }
 
 
@@ -70,6 +70,7 @@ public class MongoSinkClient implements Closeable {
      * @since 0.1
      */
     public List<BulkWriteError> processRequest(List<WriteModel<Document>> request) {
+
         try {
             logResults(mongoCollection.bulkWrite(request), request.size());
             return Collections.emptyList();

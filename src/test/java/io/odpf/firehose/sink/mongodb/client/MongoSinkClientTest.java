@@ -92,7 +92,7 @@ public class MongoSinkClientTest {
     }
 
     @Test
-    public void shouldReturnEsbMessagesListWhenBulkResponseHasFailuresWithStatusOtherThanBlacklist() {
+    public void shouldReturnFailedMessagesIfNoneOfTheFailuresBelongToBlacklist() {
         BulkWriteError writeError1 = new BulkWriteError(400, "DB not found", new BsonDocument(), 0);
         BulkWriteError writeError2 = new BulkWriteError(400, "DB not found", new BsonDocument(), 1);
         List<BulkWriteError> writeErrors = Arrays.asList(writeError1, writeError2);

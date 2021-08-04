@@ -82,7 +82,7 @@ public class MongoUpsertRequestHandlerTest {
         MongoUpsertRequestHandler mongoUpsertRequestHandler = new MongoUpsertRequestHandler(MongoSinkMessageType.JSON, jsonSerializer, MongoSinkRequestType.UPDATE_ONLY,
                 "customer_id");
 
-        ReplaceOneModel<Document> request = mongoUpsertRequestHandler.getRequest(messageWithJSON);
+        ReplaceOneModel<Document> request = (ReplaceOneModel<Document>) mongoUpsertRequestHandler.getRequest(messageWithJSON);
         Document inputMap = new Document("_id", "544131618");
         inputMap.putAll(new BasicDBObject(Document.parse(jsonString)).toMap());
         Document outputMap = request.getReplacement();
@@ -104,7 +104,7 @@ public class MongoUpsertRequestHandlerTest {
         MongoUpsertRequestHandler mongoUpsertRequestHandler = new MongoUpsertRequestHandler(MongoSinkMessageType.PROTOBUF, jsonSerializer, MongoSinkRequestType.UPDATE_ONLY,
                 "s2_id_level");
 
-        ReplaceOneModel<Document> request = mongoUpsertRequestHandler.getRequest(messageWithProto);
+        ReplaceOneModel<Document> request = (ReplaceOneModel<Document>) mongoUpsertRequestHandler.getRequest(messageWithProto);
         Document outputMap = request.getReplacement();
         System.out.println(messageWithProto);
         assertEquals("BIKE", outputMap.get("vehicle_type"));

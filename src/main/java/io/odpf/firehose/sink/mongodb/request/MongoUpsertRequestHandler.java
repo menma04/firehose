@@ -1,7 +1,9 @@
 package io.odpf.firehose.sink.mongodb.request;
 
+import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.ReplaceOneModel;
 import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.WriteModel;
 import io.odpf.firehose.config.enums.MongoSinkMessageType;
 import io.odpf.firehose.config.enums.MongoSinkRequestType;
 import io.odpf.firehose.consumer.Message;
@@ -45,14 +47,22 @@ public class MongoUpsertRequestHandler extends MongoRequestHandler {
     }
 
     @Override
-    public ReplaceOneModel<Document> getRequest(Message message) {
+    public WriteModel<Document> getRequest(Message message) {
         String logMessage = extractPayload(message);
         JSONObject logMessageJSONObject = getJSONObject(logMessage);
 
-        Document document = new Document("_id", getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey));
+        Document document;
+        if (mongoPrimaryKey == null) {
+            document = new Document(logMessageJSONObject);
+            return new InsertOneModel<>(document);
+        }
+        String primaryKey = getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey);
+
+        document = new Document("_id", primaryKey);
         document.putAll(logMessageJSONObject);
+
         return new ReplaceOneModel<>(
-                new Document("_id", getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey)),
+                new Document("_id", primaryKey),
                 document,
                 new ReplaceOptions().upsert(true));
     }

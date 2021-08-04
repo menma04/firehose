@@ -42,7 +42,6 @@ public abstract class MongoRequestHandler {
      * UPDATE_ONLY for UpdateRequestHandler
      * INSERT_OR_UPDATE for UpsertRequestHandler
      *
-     *
      * @return true if the specified request type can be created otherwise false
      * @since 0.1
      */

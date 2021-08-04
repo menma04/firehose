@@ -18,12 +18,13 @@ import java.util.stream.Collectors;
  * MongoDB sink.
  * This class contains methods to create and execute a bulk request
  * and obtain a list of messages which failed to push to the sink.
+ *
  * @since 0.1
  */
 public class MongoSink extends AbstractSink {
 
     private final MongoRequestHandler mongoRequestHandler;
-    private final List<WriteModel<Document>> request = new ArrayList<>();
+    private final List<WriteModel<Document>> requests = new ArrayList<>();
     private final MongoSinkClient mongoSinkClient;
     private List<Message> messages;
 
@@ -54,8 +55,8 @@ public class MongoSink extends AbstractSink {
     @Override
     protected void prepare(List<Message> messageList) {
         this.messages = messageList;
-        request.clear();
-        messages.forEach(message -> request.add(mongoRequestHandler.getRequest(message)));
+        requests.clear();
+        messages.forEach(message -> requests.add(mongoRequestHandler.getRequest(message)));
     }
 
     /**
@@ -71,7 +72,7 @@ public class MongoSink extends AbstractSink {
      */
     @Override
     protected List<Message> execute() throws Exception {
-        List<BulkWriteError> writeErrors = mongoSinkClient.processRequest(request);
+        List<BulkWriteError> writeErrors = mongoSinkClient.processRequest(requests);
         return writeErrors.stream()
                 .map(writeError -> messages.get(writeError.getIndex()))
                 .collect(Collectors.toList());

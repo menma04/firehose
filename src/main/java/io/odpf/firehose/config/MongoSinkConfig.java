@@ -48,4 +48,8 @@ public interface MongoSinkConfig extends AppConfig {
     @DefaultValue("false")
     Boolean isSinkMongoModeUpdateOnlyEnable();
 
+    @Key("SINK_MONGO_PRESERVE_PROTO_FIELD_NAMES_ENABLE")
+    @DefaultValue("true")
+    Boolean isSinkMongoPreserveProtoFieldNamesEnable();
+
 }
