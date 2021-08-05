@@ -47,14 +47,14 @@ public class MongoSinkClientTest {
     private MongoClient mongoClient;
 
     private List<WriteModel<Document>> request;
-    private final List<String> mongoRetryStatusCodeBlacklist = new ArrayList<>();
+    private final List<Integer> mongoRetryStatusCodeBlacklist = new ArrayList<>();
 
     @Before
     public void setUp() {
         initMocks(this);
 
-        mongoRetryStatusCodeBlacklist.add("11000");
-        mongoRetryStatusCodeBlacklist.add("502");
+        mongoRetryStatusCodeBlacklist.add(11000);
+        mongoRetryStatusCodeBlacklist.add(502);
         request = new ArrayList<>();
 
         request.add(new ReplaceOneModel<>(

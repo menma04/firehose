@@ -48,7 +48,7 @@ public class MongoSinkTest {
     private MongoCollection<Document> mongoCollection;
 
     private List<Message> messages;
-    private final List<String> mongoRetryStatusCodeBlacklist = new ArrayList<>();
+    private final List<Integer> mongoRetryStatusCodeBlacklist = new ArrayList<>();
 
     @Before
     public void setUp() {
@@ -63,8 +63,8 @@ public class MongoSinkTest {
         messages.add(messageWithJSON);
         messages.add(messageWithProto);
 
-        mongoRetryStatusCodeBlacklist.add("11000");
-        mongoRetryStatusCodeBlacklist.add("502");
+        mongoRetryStatusCodeBlacklist.add(11000);
+        mongoRetryStatusCodeBlacklist.add(502);
 
         ReplaceOneModel<Document> replaceOneModel1 = new ReplaceOneModel<>(
                 new Document("customer_id", "35452"),

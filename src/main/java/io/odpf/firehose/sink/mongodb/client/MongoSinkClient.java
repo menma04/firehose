@@ -9,7 +9,6 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.WriteModel;
 import io.odpf.firehose.config.MongoSinkConfig;
 import io.odpf.firehose.metrics.Instrumentation;
-import io.odpf.firehose.sink.mongodb.util.MongoSinkFactoryUtil;
 import lombok.AllArgsConstructor;
 import org.bson.Document;
 
@@ -35,7 +34,7 @@ public class MongoSinkClient implements Closeable {
 
     private final MongoCollection<Document> mongoCollection;
     private final Instrumentation instrumentation;
-    private final List<String> mongoRetryStatusCodeBlacklist;
+    private final List<Integer> mongoRetryStatusCodeBlacklist;
     private final MongoClient mongoClient;
     private final MongoSinkConfig mongoSinkConfig;
 
@@ -53,7 +52,7 @@ public class MongoSinkClient implements Closeable {
 
         MongoDatabase database = mongoClient.getDatabase(mongoSinkConfig.getSinkMongoDBName());
         mongoCollection = database.getCollection(mongoSinkConfig.getSinkMongoCollectionName());
-        mongoRetryStatusCodeBlacklist = MongoSinkFactoryUtil.getStatusCodesAsList(mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist());
+        mongoRetryStatusCodeBlacklist = MongoSinkClientUtil.getStatusCodesAsList(mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist());
     }
 
 
@@ -79,7 +78,7 @@ public class MongoSinkClient implements Closeable {
             List<BulkWriteError> writeErrors = writeException.getWriteErrors();
             logErrors(writeErrors);
             return writeErrors.stream()
-                    .filter(writeError -> !mongoRetryStatusCodeBlacklist.contains(String.valueOf(writeError.getCode())))
+                    .filter(writeError -> !mongoRetryStatusCodeBlacklist.contains(writeError.getCode()))
                     .collect(Collectors.toList());
         }
     }
@@ -127,7 +126,7 @@ public class MongoSinkClient implements Closeable {
     private void logErrors(List<BulkWriteError> writeErrors) {
 
         writeErrors.stream()
-                .filter(writeError -> mongoRetryStatusCodeBlacklist.contains(String.valueOf(writeError.getCode())))
+                .filter(writeError -> mongoRetryStatusCodeBlacklist.contains(writeError.getCode()))
                 .forEach(writeError -> {
                     instrumentation.logWarn("Non-retriable error due to response status: {} is under blacklisted status code", writeError.getCode());
                     instrumentation.incrementCounterWithTags(SINK_MESSAGES_DROP_TOTAL, "cause=" + writeError.getMessage());

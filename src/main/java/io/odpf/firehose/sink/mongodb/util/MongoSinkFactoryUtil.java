@@ -51,19 +51,4 @@ public class MongoSinkFactoryUtil {
             throw new IllegalArgumentException("SINK_MONGO_CONNECTION_URLS is empty or null");
         }
     }
-
-    /**
-     * Gets status codes as list.
-     *
-     * @param mongoRetryStatusCodeBlacklist the mongo retry status code blacklist
-     * @return the status codes as list
-     * @since 0.1
-     */
-    public static List<String> getStatusCodesAsList(String mongoRetryStatusCodeBlacklist) {
-        return Arrays
-                .stream(mongoRetryStatusCodeBlacklist.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
-    }
 }
