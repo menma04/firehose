@@ -21,6 +21,7 @@ public abstract class MongoRequestHandler {
     private final MongoSinkMessageType messageType;
     private final MessageToJson jsonSerializer;
     private final JSONParser jsonParser;
+    private final String kafkaRecordParserMode;
 
     /**
      * Instantiates a new Mongo request handler.
@@ -29,10 +30,11 @@ public abstract class MongoRequestHandler {
      * @param jsonSerializer the json serializer
      * @since 0.1
      */
-    public MongoRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer) {
+    public MongoRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer, String kafkaRecordParserMode) {
         this.messageType = messageType;
         this.jsonSerializer = jsonSerializer;
         this.jsonParser = new JSONParser();
+        this.kafkaRecordParserMode = kafkaRecordParserMode;
     }
 
     /**
@@ -72,10 +74,16 @@ public abstract class MongoRequestHandler {
      * @since 0.1
      */
     protected String extractPayload(Message message) {
-        if (messageType.equals(MongoSinkMessageType.PROTOBUF)) {
-            return getFieldFromJSON(getJSONObject(jsonSerializer.serialize(message)), "logMessage");
+
+        if (!kafkaRecordParserMode.equals("key") && !kafkaRecordParserMode.equals("message")) {
+            throw new IllegalArgumentException("KAFKA_RECORD_PARSER_MODE should be key/message");
         }
-        return new String(message.getLogMessage(), Charset.defaultCharset());
+
+        if (messageType.equals(MongoSinkMessageType.PROTOBUF)) {
+            JSONObject messageJSONObject = getJSONObject(jsonSerializer.serialize(message));
+            return getFieldFromJSON(messageJSONObject, kafkaRecordParserMode.equals("key") ? "logKey" : "logMessage");
+        }
+        return new String(kafkaRecordParserMode.equals("key") ? message.getLogKey() : message.getLogMessage(), Charset.defaultCharset());
     }
 
     /**
@@ -90,6 +98,9 @@ public abstract class MongoRequestHandler {
      * @since 0.1
      */
     protected String getFieldFromJSON(JSONObject jsonObject, String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Key cannot be null");
+        }
         Object valueAtKey = jsonObject.get(key);
         if (valueAtKey == null) {
             throw new IllegalArgumentException("Key: " + key + " not found in ESB Message");

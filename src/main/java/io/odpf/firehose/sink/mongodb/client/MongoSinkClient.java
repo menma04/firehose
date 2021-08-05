@@ -85,7 +85,7 @@ public class MongoSinkClient implements Closeable {
 
     private void logResults(BulkWriteResult writeResult, int messageCount) {
 
-        int totalWriteCount = writeResult.getModifiedCount() + writeResult.getUpserts().size();
+        int totalWriteCount = writeResult.getInsertedCount() + writeResult.getModifiedCount() + writeResult.getUpserts().size();
         if (writeResult.wasAcknowledged()) {
             if (mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable() && totalWriteCount != messageCount) {
                 int failureCount = messageCount - totalWriteCount;
@@ -94,7 +94,7 @@ public class MongoSinkClient implements Closeable {
                 for (int i = 0; i < failureCount; i++) {
                     instrumentation.incrementCounterWithTags(SINK_MESSAGES_DROP_TOTAL, "cause=Primary Key for update request not found");
                 }
-                instrumentation.logWarn("Message dropped because Primary Key for update request was not found in the MongoDB collection");
+                instrumentation.logWarn("Message was dropped because value of Primary Key in the ESB message, had no matches in the MongoDB collection");
                 instrumentation.logWarn("Bulk request failed count: {}", failureCount);
 
             } else {
@@ -106,7 +106,7 @@ public class MongoSinkClient implements Closeable {
         }
         instrumentation.logInfo(
                 "Inserted Count {}. Matched Count {}. Deleted Count {}. Updated Count {}. Total Modified Count {}",
-                writeResult.getUpserts().size(),
+                writeResult.getUpserts().size() + writeResult.getInsertedCount(),
                 writeResult.getMatchedCount(),
                 writeResult.getDeletedCount(),
                 writeResult.getModifiedCount(),

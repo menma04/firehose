@@ -44,8 +44,8 @@ public class MongoRequestHandlerFactory {
         instrumentation.logInfo("Mongo request mode: {}", mongoSinkRequestType);
 
         ArrayList<MongoRequestHandler> mongoRequestHandlers = new ArrayList<>();
-        mongoRequestHandlers.add(new MongoUpdateRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey));
-        mongoRequestHandlers.add(new MongoUpsertRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey));
+        mongoRequestHandlers.add(new MongoUpdateRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, mongoSinkConfig.getKafkaRecordParserMode()));
+        mongoRequestHandlers.add(new MongoUpsertRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, mongoSinkConfig.getKafkaRecordParserMode()));
 
         return mongoRequestHandlers
                 .stream()

@@ -6,9 +6,9 @@ import io.odpf.firehose.config.enums.MongoSinkMessageType;
 
 public interface MongoSinkConfig extends AppConfig {
 
-    @Key("SINK_MONGO_REQUEST_TIMEOUT_MS")
+    @Key("SINK_MONGO_CONNECT_TIMEOUT_MS")
     @DefaultValue("60000")
-    int getSinkMongoRequestTimeoutMs();
+    int getSinkMongoConnectTimeoutMs();
 
     @Key("SINK_MONGO_CONNECTION_URLS")
     String getSinkMongoConnectionUrls();

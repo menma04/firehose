@@ -35,8 +35,8 @@ public class MongoUpsertRequestHandler extends MongoRequestHandler {
      * @param mongoPrimaryKey      the Mongo primary key
      * @since 0.1
      */
-    public MongoUpsertRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer, MongoSinkRequestType mongoSinkRequestType, String mongoPrimaryKey) {
-        super(messageType, jsonSerializer);
+    public MongoUpsertRequestHandler(MongoSinkMessageType messageType, MessageToJson jsonSerializer, MongoSinkRequestType mongoSinkRequestType, String mongoPrimaryKey, String kafkaRecordParserMode) {
+        super(messageType, jsonSerializer, kafkaRecordParserMode);
         this.mongoSinkRequestType = mongoSinkRequestType;
         this.mongoPrimaryKey = mongoPrimaryKey;
     }
@@ -56,12 +56,12 @@ public class MongoUpsertRequestHandler extends MongoRequestHandler {
             document = new Document(logMessageJSONObject);
             return new InsertOneModel<>(document);
         }
-        String primaryKey = getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey);
-        document = new Document("_id", primaryKey);
+        String primaryKeyValue = getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey);
+        document = new Document("_id", primaryKeyValue);
         document.putAll(logMessageJSONObject);
 
         return new ReplaceOneModel<>(
-                new Document("_id", primaryKey),
+                new Document("_id", primaryKeyValue),
                 document,
                 new ReplaceOptions().upsert(true));
     }

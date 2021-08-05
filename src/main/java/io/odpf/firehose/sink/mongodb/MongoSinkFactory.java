@@ -77,7 +77,7 @@ public class MongoSinkFactory implements SinkFactory {
      */
     private MongoClient buildMongoClient(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
         List<ServerAddress> serverAddresses = MongoSinkFactoryUtil.getServerAddresses(mongoSinkConfig.getSinkMongoConnectionUrls(), instrumentation);
-        MongoClientOptions options = MongoClientOptions.builder().connectTimeout(mongoSinkConfig.getSinkMongoRequestTimeoutMs()).build();
+        MongoClientOptions options = MongoClientOptions.builder().connectTimeout(mongoSinkConfig.getSinkMongoConnectTimeoutMs()).build();
 
         MongoClient mongoClient;
         if (mongoSinkConfig.isSinkMongoAuthEnable()) {
@@ -116,7 +116,7 @@ public class MongoSinkFactory implements SinkFactory {
                 mongoSinkConfig.getSinkMongoPrimaryKey(),
                 mongoSinkConfig.getSinkMongoInputMessageType(),
                 mongoSinkConfig.getSinkMongoCollectionName(),
-                mongoSinkConfig.getSinkMongoRequestTimeoutMs(),
+                mongoSinkConfig.getSinkMongoConnectTimeoutMs(),
                 mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist(),
                 mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable(),
                 mongoSinkConfig.isSinkMongoAuthEnable(),
