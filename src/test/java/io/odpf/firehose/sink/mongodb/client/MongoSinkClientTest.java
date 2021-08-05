@@ -72,8 +72,8 @@ public class MongoSinkClientTest {
         MongoSinkClient mongoSinkClient = new MongoSinkClient(mongoCollection, instrumentation,
                 mongoRetryStatusCodeBlacklist, mongoClient, mongoSinkConfig);
         when(mongoCollection.bulkWrite(request)).thenReturn(new BulkWriteResultMock(true, 1, 1));
-        List<BulkWriteError> failedMessages = mongoSinkClient.processRequest(request);
-        Assert.assertEquals(0, failedMessages.size());
+        List<BulkWriteError> nonBlacklistedErrors = mongoSinkClient.processRequest(request);
+        Assert.assertEquals(0, nonBlacklistedErrors.size());
     }
 
 
@@ -86,9 +86,9 @@ public class MongoSinkClientTest {
                 new ArrayList<>(), mongoClient, mongoSinkConfig);
 
         when(mongoCollection.bulkWrite(request)).thenThrow(new MongoBulkWriteException(new BulkWriteResultMock(false, 0, 0), writeErrors, null, new ServerAddress()));
-        List<BulkWriteError> failedMessages = mongoSinkClient.processRequest(request);
-        Assert.assertEquals(writeErrors.get(0), failedMessages.get(0));
-        Assert.assertEquals(writeErrors.get(1), failedMessages.get(1));
+        List<BulkWriteError> nonBlacklistedErrors = mongoSinkClient.processRequest(request);
+        Assert.assertEquals(writeErrors.get(0), nonBlacklistedErrors.get(0));
+        Assert.assertEquals(writeErrors.get(1), nonBlacklistedErrors.get(1));
     }
 
     @Test
@@ -100,9 +100,9 @@ public class MongoSinkClientTest {
                 mongoRetryStatusCodeBlacklist, mongoClient, mongoSinkConfig);
 
         when(mongoCollection.bulkWrite(request)).thenThrow(new MongoBulkWriteException(new BulkWriteResultMock(false, 0, 0), writeErrors, null, new ServerAddress()));
-        List<BulkWriteError> failedMessages = mongoSinkClient.processRequest(request);
-        Assert.assertEquals(writeErrors.get(0), failedMessages.get(0));
-        Assert.assertEquals(writeErrors.get(1), failedMessages.get(1));
+        List<BulkWriteError> nonBlacklistedErrors = mongoSinkClient.processRequest(request);
+        Assert.assertEquals(writeErrors.get(0), nonBlacklistedErrors.get(0));
+        Assert.assertEquals(writeErrors.get(1), nonBlacklistedErrors.get(1));
     }
 
     @Test
@@ -153,11 +153,11 @@ public class MongoSinkClientTest {
         when(mongoCollection.bulkWrite(request)).thenThrow(new MongoBulkWriteException(new BulkWriteResultMock(false, 0, 0),
                 writeErrors, null, new ServerAddress()));
 
-        List<BulkWriteError> failedMessages = mongoSinkClient.processRequest(request);
+        List<BulkWriteError> nonBlacklistedErrors = mongoSinkClient.processRequest(request);
 
         verify(instrumentation, times(2)).incrementCounterWithTags(any(String.class), any(String.class));
-        Assert.assertEquals(1, failedMessages.size());
-        Assert.assertEquals(writeErrors.get(1), failedMessages.get(0));
+        Assert.assertEquals(1, nonBlacklistedErrors.size());
+        Assert.assertEquals(writeErrors.get(1), nonBlacklistedErrors.get(0));
 
     }
 
