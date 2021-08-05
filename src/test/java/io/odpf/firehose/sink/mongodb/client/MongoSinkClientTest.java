@@ -78,7 +78,7 @@ public class MongoSinkClientTest {
 
 
     @Test
-    public void shouldReturnEsbMessagesListWhenBulkResponseHasFailuresAndEmptyBlacklist() {
+    public void shouldReturnNonBlacklistedErrorsWhenBulkResponseHasFailuresAndEmptyBlacklist() {
         BulkWriteError writeError1 = new BulkWriteError(400, "DB not found", new BsonDocument(), 0);
         BulkWriteError writeError2 = new BulkWriteError(400, "DB not found", new BsonDocument(), 1);
         List<BulkWriteError> writeErrors = Arrays.asList(writeError1, writeError2);
@@ -92,7 +92,7 @@ public class MongoSinkClientTest {
     }
 
     @Test
-    public void shouldReturnFailedMessagesIfNoneOfTheFailuresBelongToBlacklist() {
+    public void shouldReturnNonBlacklistedErrorsIfNoneOfTheFailuresBelongToBlacklist() {
         BulkWriteError writeError1 = new BulkWriteError(400, "DB not found", new BsonDocument(), 0);
         BulkWriteError writeError2 = new BulkWriteError(400, "DB not found", new BsonDocument(), 1);
         List<BulkWriteError> writeErrors = Arrays.asList(writeError1, writeError2);
@@ -136,7 +136,7 @@ public class MongoSinkClientTest {
     }
 
     @Test
-    public void shouldReturnFailedMessagesIfSomeOfTheFailuresDontBelongToBlacklist() {
+    public void shouldReturnNonBlacklistedErrorsIfSomeOfTheFailuresDontBelongToBlacklist() {
         BulkWriteError writeError1 = new BulkWriteError(11000, "Duplicate Key Error", new BsonDocument(), 0);
         BulkWriteError writeError2 = new BulkWriteError(400, "DB not found", new BsonDocument(), 0);
         BulkWriteError writeError3 = new BulkWriteError(502, "Collection not found", new BsonDocument(), 0);
