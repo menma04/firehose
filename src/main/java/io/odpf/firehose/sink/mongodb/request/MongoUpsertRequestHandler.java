@@ -57,7 +57,6 @@ public class MongoUpsertRequestHandler extends MongoRequestHandler {
             return new InsertOneModel<>(document);
         }
         String primaryKey = getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey);
-
         document = new Document("_id", primaryKey);
         document.putAll(logMessageJSONObject);
 

@@ -41,12 +41,25 @@ public class MongoSinkFactoryTest {
         configuration.put("SINK_MONGO_REQUEST_TIMEOUT_MS", "8277");
         configuration.put("SINK_MONGO_RETRY_STATUS_CODE_BLACKLIST", "11000");
         configuration.put("SINK_MONGO_MODE_UPDATE_ONLY_ENABLE", "true");
-        configuration.put("SINK_MONGO_AUTH_ENABLE", "false");
 
     }
 
     @Test
-    public void shouldCreateMongoSink() {
+    public void shouldCreateMongoSinkWithoutAuthentication() {
+
+        configuration.put("SINK_MONGO_AUTH_ENABLE", "false");
+        MongoSinkFactory mongoSinkFactory = new MongoSinkFactory();
+        Sink sink = mongoSinkFactory.create(configuration, statsDReporter, stencilClient);
+        assertEquals(MongoSink.class, sink.getClass());
+    }
+
+    @Test
+    public void shouldCreateMongoSinkWithAuthentication() {
+
+        configuration.put("SINK_MONGO_AUTH_ENABLE", "true");
+        configuration.put("SINK_MONGO_AUTH_USERNAME", "john_dale");
+        configuration.put("SINK_MONGO_AUTH_PASSWORD", "pass@123");
+        configuration.put("SINK_MONGO_AUTH_DB", "agents_cred");
 
         MongoSinkFactory mongoSinkFactory = new MongoSinkFactory();
         Sink sink = mongoSinkFactory.create(configuration, statsDReporter, stencilClient);

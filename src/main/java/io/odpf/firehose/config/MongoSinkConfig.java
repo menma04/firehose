@@ -20,6 +20,10 @@ public interface MongoSinkConfig extends AppConfig {
     @DefaultValue("11000")
     String getSinkMongoRetryStatusCodeBlacklist();
 
+    @Key("SINK_MONGO_PRESERVE_PROTO_FIELD_NAMES_ENABLE")
+    @DefaultValue("true")
+    Boolean isSinkMongoPreserveProtoFieldNamesEnable();
+
     @Key("SINK_MONGO_AUTH_ENABLE")
     @DefaultValue("false")
     Boolean isSinkMongoAuthEnable();
@@ -47,9 +51,4 @@ public interface MongoSinkConfig extends AppConfig {
     @Key("SINK_MONGO_MODE_UPDATE_ONLY_ENABLE")
     @DefaultValue("false")
     Boolean isSinkMongoModeUpdateOnlyEnable();
-
-    @Key("SINK_MONGO_PRESERVE_PROTO_FIELD_NAMES_ENABLE")
-    @DefaultValue("true")
-    Boolean isSinkMongoPreserveProtoFieldNamesEnable();
-
 }
