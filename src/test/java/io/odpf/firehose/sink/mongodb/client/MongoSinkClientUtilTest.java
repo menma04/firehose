@@ -1,4 +1,4 @@
-package io.odpf.firehose.sink.mongodb.util;
+package io.odpf.firehose.sink.mongodb.client;
 
 import io.odpf.firehose.sink.mongodb.client.MongoSinkClientUtil;
 import org.junit.Test;
