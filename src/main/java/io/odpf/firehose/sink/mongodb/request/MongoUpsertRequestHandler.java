@@ -43,7 +43,7 @@ public class MongoUpsertRequestHandler extends MongoRequestHandler {
 
     @Override
     public boolean canCreate() {
-        return mongoSinkRequestType == MongoSinkRequestType.INSERT_OR_UPDATE;
+        return mongoSinkRequestType == MongoSinkRequestType.UPSERT;
     }
 
     @Override

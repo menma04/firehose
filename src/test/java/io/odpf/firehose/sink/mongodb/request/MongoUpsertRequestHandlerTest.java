@@ -55,7 +55,7 @@ public class MongoUpsertRequestHandlerTest {
 
     @Test
     public void shouldReturnTrueForInsertMode() {
-        MongoUpsertRequestHandler mongoUpsertRequestHandler = new MongoUpsertRequestHandler(MongoSinkMessageType.PROTOBUF, jsonSerializer, MongoSinkRequestType.INSERT_OR_UPDATE,
+        MongoUpsertRequestHandler mongoUpsertRequestHandler = new MongoUpsertRequestHandler(MongoSinkMessageType.PROTOBUF, jsonSerializer, MongoSinkRequestType.UPSERT,
                 "customer_id", "message");
 
         assertTrue(mongoUpsertRequestHandler.canCreate());

@@ -63,7 +63,7 @@ public class MongoUpdateRequestHandlerTest {
 
     @Test
     public void shouldReturnFalseForInsertOrUpdateMode() {
-        MongoUpdateRequestHandler mongoUpdateRequestHandler = new MongoUpdateRequestHandler(MongoSinkMessageType.PROTOBUF, jsonSerializer, MongoSinkRequestType.INSERT_OR_UPDATE,
+        MongoUpdateRequestHandler mongoUpdateRequestHandler = new MongoUpdateRequestHandler(MongoSinkMessageType.PROTOBUF, jsonSerializer, MongoSinkRequestType.UPSERT,
                 "customer_id", "message");
 
         assertFalse(mongoUpdateRequestHandler.canCreate());

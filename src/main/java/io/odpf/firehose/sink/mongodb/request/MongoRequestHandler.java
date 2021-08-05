@@ -75,10 +75,6 @@ public abstract class MongoRequestHandler {
      */
     protected String extractPayload(Message message) {
 
-        if (!kafkaRecordParserMode.equals("key") && !kafkaRecordParserMode.equals("message")) {
-            throw new IllegalArgumentException("KAFKA_RECORD_PARSER_MODE should be key/message");
-        }
-
         if (messageType.equals(MongoSinkMessageType.PROTOBUF)) {
             JSONObject messageJSONObject = getJSONObject(jsonSerializer.serialize(message));
             return getFieldFromJSON(messageJSONObject, kafkaRecordParserMode.equals("key") ? "logKey" : "logMessage");

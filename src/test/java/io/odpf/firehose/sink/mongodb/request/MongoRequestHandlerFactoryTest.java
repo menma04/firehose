@@ -47,7 +47,7 @@ public class MongoRequestHandlerFactoryTest {
                 MongoSinkMessageType.JSON, jsonSerializer);
         MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
 
-        verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.INSERT_OR_UPDATE);
+        verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.UPSERT);
         assertEquals(MongoUpsertRequestHandler.class, requestHandler.getClass());
     }
 

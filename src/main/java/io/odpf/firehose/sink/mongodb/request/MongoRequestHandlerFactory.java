@@ -9,8 +9,8 @@ import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
 
-import static io.odpf.firehose.config.enums.MongoSinkRequestType.INSERT_OR_UPDATE;
 import static io.odpf.firehose.config.enums.MongoSinkRequestType.UPDATE_ONLY;
+import static io.odpf.firehose.config.enums.MongoSinkRequestType.UPSERT;
 
 /**
  * The Mongo request handler factory.
@@ -40,12 +40,18 @@ public class MongoRequestHandlerFactory {
      * @since 0.1
      */
     public MongoRequestHandler getRequestHandler() {
-        MongoSinkRequestType mongoSinkRequestType = mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable() ? UPDATE_ONLY : INSERT_OR_UPDATE;
-        instrumentation.logInfo("Mongo request mode: {}", mongoSinkRequestType);
 
+        String kafkaRecordParserMode = mongoSinkConfig.getKafkaRecordParserMode();
+        if (!kafkaRecordParserMode.equals("key") && !kafkaRecordParserMode.equals("message")) {
+            throw new IllegalArgumentException("KAFKA_RECORD_PARSER_MODE should be key/message");
+        }
+        instrumentation.logInfo("Kafka Record Parser Mode: {}", kafkaRecordParserMode);
+
+        MongoSinkRequestType mongoSinkRequestType = mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable() ? UPDATE_ONLY : UPSERT;
+        instrumentation.logInfo("Mongo request mode: {}", mongoSinkRequestType);
         ArrayList<MongoRequestHandler> mongoRequestHandlers = new ArrayList<>();
-        mongoRequestHandlers.add(new MongoUpdateRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, mongoSinkConfig.getKafkaRecordParserMode()));
-        mongoRequestHandlers.add(new MongoUpsertRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, mongoSinkConfig.getKafkaRecordParserMode()));
+        mongoRequestHandlers.add(new MongoUpdateRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, kafkaRecordParserMode));
+        mongoRequestHandlers.add(new MongoUpsertRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, kafkaRecordParserMode));
 
         return mongoRequestHandlers
                 .stream()
