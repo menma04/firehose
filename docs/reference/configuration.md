@@ -689,7 +689,7 @@ A MongoDB sink Firehose \(`SINK_TYPE`= `mongodb` \) requires the following varia
 
 MongoDB connection URL/URLs to connect. Multiple URLs could be given in a comma separated format.
 
-* Example value: `localhost:27017`
+* Example value: `localhost1:9200`
 * Type: `required`
 
 ### `SINK_MONGO_DB_NAME`
@@ -737,10 +737,14 @@ Defines the name of the Mongo Collection
 
 ### `SINK_MONGO_PRIMARY_KEY`
 
-The identifier field of the document in MongoDB. This should be the key of the field present in the message \(JSON or Protobuf\) and it has to be a unique, non-null field. So the value of this field in the message will be used as the ID of the document in MongoDB while writing the document.
+The identifier field of the document in MongoDB. This should be the key of a field present in the message \(JSON or Protobuf\) and it has to be a unique, non-null field. So the value of this field in the message will be copied to the `_id` field of the document in MongoDB while writing the document.
+
+Note - If this parameter is not specified in Upsert mode  \( i.e. when the variable`SINK_MONGO_MODE_UPDATE_ONLY_ENABLE=false`\), then Mongo server will assign the default UUID to the `_id` field, and only insert operations can be performed.
+
+Note - this variable is a required field in the case of Update-Only mode \( i.e. when the variable`SINK_MONGO_MODE_UPDATE_ONLY_ENABLE=true`\). Also, all externally-fed documents must have this key copied to the `_id` field, for update operations to execute normally.
 
 * Example value: `customer_id`
-* Type: `required`
+* Type: `optional`
 
 ### `SINK_MONGO_MODE_UPDATE_ONLY_ENABLE`
 
@@ -760,9 +764,9 @@ Indicates if the Kafka topic contains JSON or Protocol Buffer messages.
 * Type: `required`
 * Default value: `JSON`
 
-### `SINK_MONGO_REQUEST_TIMEOUT_MS`
+### `SINK_MONGO_CONNECT_TIMEOUT_MS`
 
-Defines the request timeout of the MongoDB endpoint. The value specified is in milliseconds.
+Defines the connect timeout of the MongoDB endpoint. The value specified is in milliseconds.
 
 * Example value: `60000`
 * Type: `required`
