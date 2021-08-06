@@ -35,6 +35,7 @@ public class MongoRequestHandlerFactoryTest {
         when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(new Random().nextBoolean());
         MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
                 MongoSinkMessageType.JSON, jsonSerializer);
+        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
         MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
 
         assertEquals(MongoRequestHandler.class, requestHandler.getClass().getSuperclass());
@@ -45,6 +46,7 @@ public class MongoRequestHandlerFactoryTest {
         when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(false);
         MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
                 MongoSinkMessageType.JSON, jsonSerializer);
+        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
         MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
 
         verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.UPSERT);
@@ -56,6 +58,7 @@ public class MongoRequestHandlerFactoryTest {
         when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(true);
         MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
                 MongoSinkMessageType.JSON, jsonSerializer);
+        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
         MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
 
         verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.UPDATE_ONLY);
