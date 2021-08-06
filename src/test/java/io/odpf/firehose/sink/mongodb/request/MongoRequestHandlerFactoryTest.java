@@ -90,21 +90,6 @@ public class MongoRequestHandlerFactoryTest {
     }
 
     @Test
-    public void shouldLogMongoUpdateOnlyRequestMode() {
-        String primaryKey = "customer_id";
-
-        when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(true);
-        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
-                MongoSinkMessageType.JSON, jsonSerializer);
-        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
-        MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
-
-        verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.UPDATE_ONLY);
-        assertEquals(MongoUpdateRequestHandler.class, requestHandler.getClass());
-    }
-
-
-    @Test
     public void shouldCreateUpsertRequestHandlerWhenPrimaryKeyNotSpecified() {
         String primaryKey = null;
 

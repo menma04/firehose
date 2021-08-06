@@ -52,8 +52,9 @@ public class MongoSinkFactory implements SinkFactory {
 
         MongoClient mongoClient = buildMongoClient(mongoSinkConfig, instrumentation);
         MongoSinkClient mongoSinkClient = new MongoSinkClient(mongoSinkConfig, new Instrumentation(statsDReporter, MongoSinkClient.class), mongoClient);
-
+        mongoSinkClient.prepare();
         instrumentation.logInfo("MONGO connection established");
+
         return new MongoSink(new Instrumentation(statsDReporter, MongoSink.class), SinkType.MONGODB.name().toLowerCase(), mongoRequestHandler,
                 mongoSinkClient);
     }
@@ -70,8 +71,6 @@ public class MongoSinkFactory implements SinkFactory {
      * If Authentication parameter is disabled then the MongoClient session is started
      * in non-authentication mode.
      *
-     * @param mongoSinkConfig the mongo sink config
-     * @param instrumentation the instrumentation
      * @return the mongo client
      * @since 0.1
      */
@@ -81,6 +80,16 @@ public class MongoSinkFactory implements SinkFactory {
 
         MongoClient mongoClient;
         if (mongoSinkConfig.isSinkMongoAuthEnable()) {
+
+            if (mongoSinkConfig.getSinkMongoAuthUsername() == null) {
+                throw new IllegalArgumentException("Username cannot be null in Auth mode");
+            }
+            if (mongoSinkConfig.getSinkMongoAuthPassword() == null) {
+                throw new IllegalArgumentException("Password cannot be null in Auth mode");
+            }
+            if (mongoSinkConfig.getSinkMongoAuthDB() == null) {
+                throw new IllegalArgumentException("Auth DB cannot be null in Auth mode");
+            }
             MongoCredential mongoCredential = MongoCredential.createCredential(mongoSinkConfig.getSinkMongoAuthUsername(), mongoSinkConfig.getSinkMongoAuthDB(), mongoSinkConfig.getSinkMongoAuthPassword().toCharArray());
             mongoClient = new MongoClient(serverAddresses, mongoCredential, options);
         } else {
@@ -94,11 +103,9 @@ public class MongoSinkFactory implements SinkFactory {
      * logger, in Debug Mode. If the parameter is null, i.e. not specified, then the
      * logger logs "null" to the log console.
      *
-     * @param mongoSinkConfig the mongo sink config object
-     * @param instrumentation the instrumentation containing the logger
      * @since 0.1
      */
-    private static void logMongoConfig(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
+    private void logMongoConfig(MongoSinkConfig mongoSinkConfig, Instrumentation instrumentation) {
         String mongoConfig = String.format("\n\tMONGO connection urls: %s"
                         + "\n\tMONGO Database name: %s"
                         + "\n\tMONGO Primary Key: %s"

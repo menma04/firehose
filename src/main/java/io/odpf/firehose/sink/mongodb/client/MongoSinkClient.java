@@ -14,6 +14,7 @@ import org.bson.Document;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ import static io.odpf.firehose.metrics.Metrics.SINK_MESSAGES_DROP_TOTAL;
 @AllArgsConstructor
 public class MongoSinkClient implements Closeable {
 
-    private final MongoCollection<Document> mongoCollection;
+    private MongoCollection<Document> mongoCollection;
     private final Instrumentation instrumentation;
     private final List<Integer> mongoRetryStatusCodeBlacklist;
     private final MongoClient mongoClient;
@@ -49,12 +50,62 @@ public class MongoSinkClient implements Closeable {
         this.mongoSinkConfig = mongoSinkConfig;
         this.instrumentation = instrumentation;
         this.mongoClient = mongoClient;
-
-        MongoDatabase database = mongoClient.getDatabase(mongoSinkConfig.getSinkMongoDBName());
-        mongoCollection = database.getCollection(mongoSinkConfig.getSinkMongoCollectionName());
         mongoRetryStatusCodeBlacklist = MongoSinkClientUtil.getStatusCodesAsList(mongoSinkConfig.getSinkMongoRetryStatusCodeBlacklist());
+
     }
 
+    public void prepare() {
+
+        String databaseName = mongoSinkConfig.getSinkMongoDBName();
+        String collectionName = mongoSinkConfig.getSinkMongoCollectionName();
+
+        if (databaseName == null) {
+            throw new IllegalArgumentException("DB name cannot be null");
+        }
+
+        boolean doesDBExist = true;
+        if (!mongoClient.listDatabaseNames()
+                .into(new ArrayList<>())
+                .contains(databaseName)) {
+            instrumentation.logInfo("Database: " + databaseName + " does not exist. Attempting to create database");
+            doesDBExist = false;
+        }
+
+        MongoDatabase database = mongoClient.getDatabase(mongoSinkConfig.getSinkMongoDBName());
+
+        if (!mongoClient.listDatabaseNames()
+                .into(new ArrayList<>())
+                .contains(databaseName)) {
+            throw new IllegalArgumentException("Failed to create DB due to invalid DB name");
+        }
+        if (!doesDBExist) {
+            instrumentation.logInfo("Database was successfully created");
+        }
+
+        if (collectionName == null) {
+            throw new IllegalArgumentException("Collection name cannot be null");
+        }
+
+        boolean doesCollectionExist = true;
+        if (!database.listCollectionNames()
+                .into(new ArrayList<>())
+                .contains(collectionName)) {
+            doesCollectionExist = false;
+            instrumentation.logInfo("Collection: " + collectionName + " does not exist. Attempting to create collection");
+        }
+
+        mongoCollection = database.getCollection(collectionName);
+
+        if (!database.listCollectionNames()
+                .into(new ArrayList<>())
+                .contains(collectionName)) {
+            throw new IllegalArgumentException("Failed to create Collection due to invalid collection name");
+        }
+
+        if (!doesCollectionExist) {
+            instrumentation.logInfo("Collection was successfully created");
+        }
+    }
 
     /**
      * Processes the bulk request list of WriteModel.

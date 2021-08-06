@@ -125,7 +125,6 @@ public class MongoUpsertRequestHandlerTest {
         MongoUpsertRequestHandler mongoUpsertRequestHandler = new MongoUpsertRequestHandler(MongoSinkMessageType.PROTOBUF, jsonSerializer, MongoSinkRequestType.UPDATE_ONLY,
                 "s2_id_level", "message");
         JSONObject jsonObject = mongoUpsertRequestHandler.getJSONObject(jsonSerializer.serialize(messageWithProto));
-
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Key: wrongKey not found in ESB Message");
         mongoUpsertRequestHandler.getFieldFromJSON(jsonObject, "wrongKey");
