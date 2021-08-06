@@ -45,14 +45,15 @@ public class MongoRequestHandlerFactory {
         if (!kafkaRecordParserMode.equals("key") && !kafkaRecordParserMode.equals("message")) {
             throw new IllegalArgumentException("KAFKA_RECORD_PARSER_MODE should be key/message");
         }
-        instrumentation.logInfo("Kafka Record Parser Mode: {}", kafkaRecordParserMode);
-
         MongoSinkRequestType mongoSinkRequestType = mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable() ? UPDATE_ONLY : UPSERT;
         instrumentation.logInfo("Mongo request mode: {}", mongoSinkRequestType);
+        if (mongoSinkRequestType == UPDATE_ONLY && mongoPrimaryKey == null) {
+            throw new IllegalArgumentException("Primary Key cannot be null in Update-Only mode");
+        }
+
         ArrayList<MongoRequestHandler> mongoRequestHandlers = new ArrayList<>();
         mongoRequestHandlers.add(new MongoUpdateRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, kafkaRecordParserMode));
         mongoRequestHandlers.add(new MongoUpsertRequestHandler(messageType, jsonSerializer, mongoSinkRequestType, mongoPrimaryKey, kafkaRecordParserMode));
-
         return mongoRequestHandlers
                 .stream()
                 .filter(MongoRequestHandler::canCreate)

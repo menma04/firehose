@@ -6,7 +6,9 @@ import io.odpf.firehose.config.enums.MongoSinkRequestType;
 import io.odpf.firehose.metrics.Instrumentation;
 import io.odpf.firehose.serializer.MessageToJson;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.util.Random;
@@ -16,6 +18,9 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MongoRequestHandlerFactoryTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Mock
     private MongoSinkConfig mongoSinkConfig;
@@ -32,8 +37,10 @@ public class MongoRequestHandlerFactoryTest {
 
     @Test
     public void shouldReturnMongoRequestHandler() {
+        String primaryKey = "customer_id";
+
         when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(new Random().nextBoolean());
-        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
                 MongoSinkMessageType.JSON, jsonSerializer);
         when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
         MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
@@ -43,8 +50,10 @@ public class MongoRequestHandlerFactoryTest {
 
     @Test
     public void shouldReturnUpsertRequestHandler() {
+        String primaryKey = "customer_id";
+
         when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(false);
-        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
                 MongoSinkMessageType.JSON, jsonSerializer);
         when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
         MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
@@ -55,13 +64,70 @@ public class MongoRequestHandlerFactoryTest {
 
     @Test
     public void shouldReturnUpdateRequestHandler() {
+        String primaryKey = "customer_id";
+
         when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(true);
-        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, "id",
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
                 MongoSinkMessageType.JSON, jsonSerializer);
         when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
         MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
 
         verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.UPDATE_ONLY);
         assertEquals(MongoUpdateRequestHandler.class, requestHandler.getClass());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenInvalidRecordParserMode() {
+        String primaryKey = "customer_id";
+
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
+                MongoSinkMessageType.JSON, jsonSerializer);
+        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("xyz");
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("KAFKA_RECORD_PARSER_MODE should be key/message");
+        mongoRequestHandlerFactory.getRequestHandler();
+    }
+
+    @Test
+    public void shouldLogMongoUpdateOnlyRequestMode() {
+        String primaryKey = "customer_id";
+
+        when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(true);
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
+                MongoSinkMessageType.JSON, jsonSerializer);
+        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
+        MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
+
+        verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.UPDATE_ONLY);
+        assertEquals(MongoUpdateRequestHandler.class, requestHandler.getClass());
+    }
+
+
+    @Test
+    public void shouldCreateUpsertRequestHandlerWhenPrimaryKeyNotSpecified() {
+        String primaryKey = null;
+
+        when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(false);
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
+                MongoSinkMessageType.JSON, jsonSerializer);
+        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
+        MongoRequestHandler requestHandler = mongoRequestHandlerFactory.getRequestHandler();
+
+        verify(instrumentation, times(1)).logInfo("Mongo request mode: {}", MongoSinkRequestType.UPSERT);
+        assertEquals(MongoUpsertRequestHandler.class, requestHandler.getClass());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCreateUpdateRequestHandlerWhenPrimaryKeyNotSpecified() {
+        String primaryKey = null;
+        when(mongoSinkConfig.isSinkMongoModeUpdateOnlyEnable()).thenReturn(true);
+        MongoRequestHandlerFactory mongoRequestHandlerFactory = new MongoRequestHandlerFactory(mongoSinkConfig, instrumentation, primaryKey,
+                MongoSinkMessageType.JSON, jsonSerializer);
+
+        when(mongoSinkConfig.getKafkaRecordParserMode()).thenReturn("message");
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Primary Key cannot be null in Update-Only mode");
+        mongoRequestHandlerFactory.getRequestHandler();
     }
 }

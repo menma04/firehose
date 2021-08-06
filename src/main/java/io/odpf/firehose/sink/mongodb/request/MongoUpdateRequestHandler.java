@@ -44,15 +44,7 @@ public class MongoUpdateRequestHandler extends MongoRequestHandler {
         JSONObject logMessageJSONObject = getJSONObject(logMessage);
         String primaryKeyValue;
 
-        try {
-            primaryKeyValue = getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().equals("Key cannot be null")) {
-                throw new IllegalArgumentException("Primary Key cannot be null in Update-Only mode");
-            } else {
-                throw new IllegalArgumentException("Primary Key: " + mongoPrimaryKey + " was not found in ESB message");
-            }
-        }
+        primaryKeyValue = getFieldFromJSON(logMessageJSONObject, mongoPrimaryKey);
         Document document = new Document("_id", primaryKeyValue);
         document.putAll(logMessageJSONObject);
 
